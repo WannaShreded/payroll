@@ -7,6 +7,10 @@ class AppColors {
   static const Color success = Colors.green;
   static const Color error = Colors.red;
   static const Color white70 = Colors.white70;
+  static const Color orange = Color(0xFFFF9500);
+  static const Color teal = Color(0xFF00C9A7);
+  static const Color red = Color(0xFFFF4757);
+  static const Color blue = Color(0xFF2E86AB);
 }
 
 class AppConstants {
@@ -50,12 +54,41 @@ class AppText {
   // Dashboard Page
   static const String dashboard = 'Dashboard';
   static const String welcome = 'Selamat Datang!';
+  static const String goodMorning = 'Selamat Pagi';
+  static const String goodAfternoon = 'Selamat Siang';
+  static const String goodEvening = 'Selamat Sore';
+  static const String goodNight = 'Selamat Malam';
+  static const String totalEmployees = 'Total Karyawan';
+  static const String totalSalary = 'Total Gaji Bulan Ini';
+  static const String employeeData = 'Data Karyawan';
+  static const String payroll = 'Penggajian';
+  static const String attendance = 'Absensi';
+  static const String reports = 'Laporan';
+  static const String home = 'Beranda';
+  static const String employees = 'Karyawan';
+  static const String salary = 'Gaji';
+  static const String profile = 'Profil';
   static const String accountInfo = 'Informasi Akun';
   static const String name = 'Nama';
-  static const String salary = 'Lihat Gaji';
   static const String quickActions = 'Aksi Cepat';
+  static const String notifications = 'Notifikasi';
 
   // General
   static const String comingSoon = 'Coming Soon';
 }
+
+class GreetingMessage {
+  static String getGreeting(int hour) {
+    if (hour >= 0 && hour < 12) {
+      return AppText.goodMorning;
+    } else if (hour >= 12 && hour < 15) {
+      return AppText.goodAfternoon;
+    } else if (hour >= 15 && hour < 19) {
+      return AppText.goodEvening;
+    } else {
+      return AppText.goodNight;
+    }
+  }
+}
+
 
