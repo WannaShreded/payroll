@@ -15,6 +15,7 @@ class AppConstants {
   static const int phoneMinLength = 10;
   static const int nameMinLength = 3;
   static const int registrationDelaySeconds = 2;
+  static const int loginDelaySeconds = 2;
   static const int redirectDelaySeconds = 1;
 }
 
@@ -32,12 +33,29 @@ class AppText {
   static const String register = 'Daftar';
   static const String alreadyHaveAccount = 'Sudah punya akun? ';
   static const String login = 'Login';
-
-  // Messages
   static const String successRegister = 'Pendaftaran berhasil!';
   static const String agreeTermsError = 'Silakan setujui syarat & ketentuan';
 
   // Login Page
   static const String loginTitle = 'Login';
-  static const String comingSoon = 'Login Page - Coming Soon';
+  static const String rememberMe = 'Ingat Saya';
+  static const String forgotPassword = 'Lupa Password?';
+  static const String dontHaveAccount = 'Belum punya akun? ';
+  static const String signUp = 'Daftar';
+  static const String loginButton = 'Login';
+  static const String successLogin = 'Login berhasil!';
+  static const String invalidCredentials = 'Email atau password salah';
+  static const String loginSubtitle = 'Masuk ke akun Anda';
+
+  // Dashboard Page
+  static const String dashboard = 'Dashboard';
+  static const String welcome = 'Selamat Datang!';
+  static const String accountInfo = 'Informasi Akun';
+  static const String name = 'Nama';
+  static const String salary = 'Lihat Gaji';
+  static const String quickActions = 'Aksi Cepat';
+
+  // General
+  static const String comingSoon = 'Coming Soon';
 }
+

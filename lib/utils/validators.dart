@@ -1,4 +1,5 @@
 class Validators {
+  // Register Validators
   static String? validateFullName(String? value) {
     if (value == null || value.isEmpty) {
       return 'Nama lengkap tidak boleh kosong';
@@ -59,6 +60,28 @@ class Validators {
     }
     if (value != passwordValue) {
       return 'Password tidak cocok';
+    }
+    return null;
+  }
+
+  // Login Validators
+  static String? validateLoginEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email tidak boleh kosong';
+    }
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Format email tidak valid';
+    }
+    return null;
+  }
+
+  static String? validateLoginPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password tidak boleh kosong';
+    }
+    if (value.length < 8) {
+      return 'Password minimal 8 karakter';
     }
     return null;
   }
