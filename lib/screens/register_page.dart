@@ -256,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _buildRoleDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedRole,
+      initialValue: _selectedRole,
       decoration: InputDecoration(
         hintText: AppText.role,
         prefixIcon: const Icon(Icons.work),

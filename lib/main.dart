@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/register_page.dart';
 import 'screens/login_page.dart';
 import 'screens/dashboard_page.dart';
 import 'services/session_service.dart';
-import 'models/user_model.dart';
 
 void main() {
   runApp(const MainApp());
