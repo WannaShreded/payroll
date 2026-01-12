@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "673201794334",
+    "firebase_url": "https://payroll-7c0fd-default-rtdb.firebaseio.com",
     "project_id": "payroll-7c0fd",
     "storage_bucket": "payroll-7c0fd.firebasestorage.app"
   },

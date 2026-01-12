@@ -44,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _isLoading = true;
       });
       // Call AuthService to perform registration
-      final success = await AuthService.registerUser(
+      final error = await AuthService.registerUser(
         name: _fullNameController.text.trim(),
         email: _emailController.text.trim(),
         phone: _phoneController.text.trim(),
@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (!mounted) return;
 
-      if (success) {
+      if (error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppText.successRegister),
@@ -79,9 +79,9 @@ class _RegisterPageState extends State<RegisterPage> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppText.errorRegister),
+            content: Text(error.toString()),
             backgroundColor: AppColors.error,
-            duration: const Duration(seconds: 2),
+            duration: const Duration(seconds: 3),
           ),
         );
       }

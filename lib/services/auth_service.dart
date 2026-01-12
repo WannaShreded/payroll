@@ -10,18 +10,17 @@ class AuthService {
   static final _auth = FirebaseAuth.instance;
   static final _firestore = FirebaseFirestore.instance;
 
-  // Register using FirebaseAuth + create user profile in Firestore.
-  // Before: stored hashed passwords in SharedPreferences (insecure and local-only).
-  // After: use Firebase Auth to manage credentials and Firestore to store profile.
-  static Future<bool> registerUser({
+  /// Register a new user.
+  /// Returns `null` on success, or a user-friendly error string on failure.
+  static Future<String?> registerUser({
     required String name,
     required String email,
     required String phone,
     required String role,
     required String password,
   }) async {
-    if (!EmailValidator.validate(email)) return false;
-    if (password.length < 8) return false;
+    if (!EmailValidator.validate(email)) return 'Email tidak valid';
+    if (password.length < 8) return 'Password minimal 8 karakter';
 
     try {
       final userCred = await _auth.createUserWithEmailAndPassword(
@@ -41,40 +40,87 @@ class AuthService {
       );
 
       // Save profile in Firestore under `users/{uid}`
-      await _firestore.collection('users').doc(uid).set(userModel.toJson());
+      try {
+        await _firestore.collection('users').doc(uid).set(userModel.toJson());
+      } catch (e) {
+        // If Firestore write fails, delete the created Auth user to avoid orphaned accounts
+        try {
+          await userCred.user?.delete();
+        } catch (delErr) {
+          // ignore: avoid_print
+          print('Failed to delete auth user after Firestore error: $delErr');
+        }
+        // ignore: avoid_print
+        print('Firestore write error during registration: $e');
+        return 'Pendaftaran gagal (gagal menyimpan profil). Coba lagi.';
+      }
 
-      return true;
+      return null;
     } on FirebaseAuthException catch (e) {
-      // Handle auth-specific errors (email-already-in-use, weak-password, etc.)
-      // ignore: avoid_print
-      print('FirebaseAuth register error: ${e.code} ${e.message}');
-      return false;
+      switch (e.code) {
+        case 'email-already-in-use':
+          return 'Email sudah terdaftar';
+        case 'invalid-email':
+          return 'Email tidak valid';
+        case 'weak-password':
+          return 'Password terlalu lemah';
+        case 'operation-not-allowed':
+          return 'Pendaftaran tidak diizinkan pada project ini';
+        default:
+          return e.message ?? 'Pendaftaran gagal';
+      }
     } catch (e) {
       // ignore: avoid_print
       print('Register error: $e');
-      return false;
+      return 'Pendaftaran gagal';
     }
   }
 
-  // Login using FirebaseAuth, then load profile from Firestore and save session
+  /// Login and return a `UserSession` (or `null` on failure).
   static Future<UserSession?> loginUser({
     required String email,
     required String password,
   }) async {
     try {
-      final userCred = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      late final UserCredential userCred;
+      try {
+        userCred = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        // ignore: avoid_print
+        print('signInWithEmailAndPassword returned type: ${userCred.runtimeType}');
+        // ignore: avoid_print
+        print('user runtimeType: ${userCred.user.runtimeType}');
+        // ignore: avoid_print
+        print('providerData runtimeType: ${userCred.user?.providerData.runtimeType}');
+      } catch (e, st) {
+        // Detailed logging for platform/channel type errors
+        // ignore: avoid_print
+        print('Error during signInWithEmailAndPassword: $e');
+        // ignore: avoid_print
+        print(st);
+        rethrow;
+      }
 
       final uid = userCred.user!.uid;
       final doc = await _firestore.collection('users').doc(uid).get();
       if (!doc.exists) return null;
 
-      final userMap = doc.data()!;
-      final user = UserModel.fromJson(Map<String, dynamic>.from(userMap));
+      final raw = doc.data();
+      // Defensive logging to help diagnose type issues (e.g., unexpected List)
+      // ignore: avoid_print
+      print('AuthService.loginUser - raw user doc type: ${raw.runtimeType}');
+      if (raw is! Map<String, dynamic>) {
+        // ignore: avoid_print
+        print('Unexpected user doc format: $raw');
+        return null;
+      }
 
-      // Save local session (keeps app behavior compatible)
+      final userMap = Map<String, dynamic>.from(raw);
+      final user = UserModel.fromJson(userMap);
+
+      // Save local session for compatibility
       await SessionService.saveUserSession(user);
 
       final session = UserSession(
@@ -100,7 +146,7 @@ class AuthService {
     }
   }
 
-  // Logout using FirebaseAuth and clear local session
+  /// Logout user from Firebase and clear local session
   static Future<void> logoutUser() async {
     try {
       await _auth.signOut();
@@ -112,3 +158,4 @@ class AuthService {
     await UserSession.clearSession();
   }
 }
+

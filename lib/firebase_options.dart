@@ -55,6 +55,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '673201794334',
     projectId: 'payroll-7c0fd',
     authDomain: 'payroll-7c0fd.firebaseapp.com',
+    databaseURL: 'https://payroll-7c0fd-default-rtdb.firebaseio.com',
     storageBucket: 'payroll-7c0fd.firebasestorage.app',
     measurementId: 'G-MWXYZW28FT',
   );
@@ -64,6 +65,8 @@ class DefaultFirebaseOptions {
     appId: '1:673201794334:android:e7ee2d417a09b1621aad0f',
     messagingSenderId: '673201794334',
     projectId: 'payroll-7c0fd',
+    databaseURL: 'https://payroll-7c0fd-default-rtdb.firebaseio.com',
     storageBucket: 'payroll-7c0fd.firebasestorage.app',
   );
+
 }

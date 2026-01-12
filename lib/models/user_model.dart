@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
+
 class UserModel {
   final String id;
   final String fullName;
@@ -29,15 +31,29 @@ class UserModel {
 
   // Create from JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    DateTime parsedCreatedAt = DateTime.now();
+    final created = json['createdAt'];
+    if (created != null) {
+      try {
+        if (created is String) {
+          parsedCreatedAt = DateTime.parse(created);
+        } else if (created is Timestamp) {
+          parsedCreatedAt = created.toDate();
+        } else if (created is int) {
+          parsedCreatedAt = DateTime.fromMillisecondsSinceEpoch(created);
+        }
+      } catch (_) {
+        parsedCreatedAt = DateTime.now();
+      }
+    }
+
     return UserModel(
       id: json['id'] ?? '',
       fullName: json['fullName'] ?? '',
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       role: json['role'] ?? '',
-      createdAt: json['createdAt'] != null 
-          ? DateTime.parse(json['createdAt'])
-          : DateTime.now(),
+      createdAt: parsedCreatedAt,
     );
   }
 
