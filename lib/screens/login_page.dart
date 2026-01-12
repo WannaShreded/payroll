@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../utils/validators.dart';
 import '../utils/constants.dart';
-import '../models/user_model.dart';
 import '../services/session_service.dart';
+import '../services/auth_service.dart';
 import 'register_page.dart';
 import 'dashboard_page.dart';
 
@@ -22,30 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _isLoading = false;
 
-  // Sample registered users (in real app, this would be from a database/API)
-  final Map<String, String> _registeredUsers = {
-    'admin@payroll.com': 'Admin123',
-    'manager@payroll.com': 'Manager123',
-    'staff@payroll.com': 'Staff123',
-  };
-
-  final Map<String, Map<String, String>> _userDetails = {
-    'admin@payroll.com': {
-      'fullName': 'Administrator',
-      'phone': '0812345678',
-      'role': 'Admin',
-    },
-    'manager@payroll.com': {
-      'fullName': 'Manager Payroll',
-      'phone': '0812345679',
-      'role': 'Manager',
-    },
-    'staff@payroll.com': {
-      'fullName': 'Staff Member',
-      'phone': '0812345680',
-      'role': 'Staff',
-    },
-  };
+  // Authentication handled by AuthService
 
   @override
   void initState() {
@@ -86,9 +63,9 @@ class _LoginPageState extends State<LoginPage> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
-      // Check credentials
-      if (_registeredUsers.containsKey(email) &&
-          _registeredUsers[email] == password) {
+      // Attempt login via AuthService
+      final session = await AuthService.loginUser(email: email, password: password);
+      if (session != null) {
         // Save remember me preference
         if (_rememberMe) {
           await SessionService.setRememberMe(true);
@@ -97,18 +74,8 @@ class _LoginPageState extends State<LoginPage> {
           await SessionService.setRememberMe(false);
         }
 
-        // Create user object
-        final userDetails = _userDetails[email]!;
-        final user = UserModel(
-          id: email.split('@')[0],
-          fullName: userDetails['fullName']!,
-          email: email,
-          phone: userDetails['phone']!,
-          role: userDetails['role']!,
-        );
-
-        // Save user session
-        await SessionService.saveUserSession(user);
+        // Retrieve stored UserModel
+        final user = await SessionService.getUserSession();
 
         if (mounted) {
           setState(() {
@@ -126,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
           // Redirect to dashboard
           Future.delayed(
               const Duration(seconds: AppConstants.redirectDelaySeconds), () {
-            if (mounted) {
+            if (mounted && user != null) {
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => DashboardPage(user: user)),
                 (route) => false,

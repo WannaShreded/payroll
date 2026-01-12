@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/validators.dart';
+import '../services/auth_service.dart';
 import '../utils/constants.dart';
 import 'login_page.dart';
 
@@ -25,8 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
-  // Temporary storage for registered emails (in real app, use database)
-  final Set<String> _registeredEmails = {};
+  // Registration uses AuthService (persistent). No local email set needed.
 
   @override
   void dispose() {
@@ -43,19 +43,25 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() {
         _isLoading = true;
       });
-
-      // Simulate network delay
-      await Future.delayed(
-          const Duration(seconds: AppConstants.registrationDelaySeconds));
+      // Call AuthService to perform registration
+      final success = await AuthService.registerUser(
+        name: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        role: _selectedRole ?? AppConstants.roles.first,
+        password: _passwordController.text,
+      );
 
       setState(() {
         _isLoading = false;
       });
 
-      if (mounted) {
+      if (!mounted) return;
+
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(AppText.successRegister),
+            content: Text(AppText.successRegister),
             backgroundColor: AppColors.success,
             duration: const Duration(seconds: 2),
           ),
@@ -70,10 +76,18 @@ class _RegisterPageState extends State<RegisterPage> {
             );
           }
         });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppText.errorRegister),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
     } else if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(AppText.agreeTermsError),
           backgroundColor: AppColors.error,
         ),
@@ -137,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) =>
-                            Validators.validateEmail(value, _registeredEmails),
+                            Validators.validateEmail(value, <String>{}),
                       ),
                       const SizedBox(height: 16),
                       // Phone Number

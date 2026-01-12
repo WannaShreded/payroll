@@ -1,117 +1,67 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import '../models/user_model.dart';
 import '../models/user_session.dart';
 
 class SessionService {
-  static const String _userKey = 'user_session';
-  static const String _emailKey = 'remembered_email';
-  static const String _rememberKey = 'remember_me';
+  static final _auth = FirebaseAuth.instance;
+  static final _firestore = FirebaseFirestore.instance;
 
-  // Save user session
+  // Save user profile to Firestore and also keep a local copy for compatibility.
   static Future<void> saveUserSession(UserModel user) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userJson = jsonEncode(user.toJson());
-      await prefs.setString(_userKey, userJson);
+      await _firestore.collection('users').doc(user.id).set(user.toJson());
     } catch (e) {
-      print('Error saving user session: $e');
+      // ignore: avoid_print
+      print('Error saving user session to Firestore: $e');
     }
   }
 
-  // Get user session
-  static Future<UserModel?> getUserSession() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final userJson = prefs.getString(_userKey);
-      if (userJson != null) {
-        final userData = jsonDecode(userJson);
-        return UserModel.fromJson(userData);
-      }
-    } catch (e) {
-      print('Error getting user session: $e');
-    }
-    return null;
-  }
-
-  // Save remembered email
-  static Future<void> saveRememberedEmail(String email) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_emailKey, email);
-    } catch (e) {
-      print('Error saving remembered email: $e');
-    }
-  }
-
-  // Get remembered email
-  static Future<String?> getRememberedEmail() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_emailKey);
-    } catch (e) {
-      print('Error getting remembered email: $e');
-    }
-    return null;
-  }
-
-  // Save remember me preference
-  static Future<void> setRememberMe(bool value) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_rememberKey, value);
-    } catch (e) {
-      print('Error setting remember me: $e');
-    }
-  }
-
-  // Get remember me preference
-  static Future<bool> getRememberMe() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getBool(_rememberKey) ?? false;
-    } catch (e) {
-      print('Error getting remember me: $e');
-      return false;
-    }
-  }
-
-  // Update user session
+  // Update existing user profile in Firestore. Returns true on success.
   static Future<bool> updateUserSession(UserModel user) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userJson = jsonEncode(user.toJson());
-      await prefs.setString(_userKey, userJson);
+      final docRef = _firestore.collection('users').doc(user.id);
+      final doc = await docRef.get();
+      if (!doc.exists) {
+        return false;
+      }
+      await docRef.update(user.toJson());
       return true;
     } catch (e) {
-      print('Error updating user session: $e');
+      // ignore: avoid_print
+      print('Error updating user session in Firestore: $e');
       return false;
     }
   }
 
-  // Logout - clear session
+  // Get user session: prefer Firebase Auth currentUser and Firestore profile
+  static Future<UserModel?> getUserSession() async {
+    try {
+      final firebaseUser = _auth.currentUser;
+      if (firebaseUser == null) return null;
+
+      final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      if (!doc.exists) return null;
+      return UserModel.fromJson(Map<String, dynamic>.from(doc.data() as Map));
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error getting user session from Firestore: $e');
+      return null;
+    }
+  }
+
+  // Logout via FirebaseAuth
   static Future<void> logout() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_userKey);
+      await _auth.signOut();
     } catch (e) {
-      print('Error logging out: $e');
+      // ignore: avoid_print
+      print('Error signing out: $e');
     }
   }
 
-  // Clear all login data
-  static Future<void> clearAllLoginData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_userKey);
-      await prefs.remove(_emailKey);
-      await prefs.remove(_rememberKey);
-    } catch (e) {
-      print('Error clearing login data: $e');
-    }
-  }
-
-  // --- Helper methods to bridge with UserSession model ---
+  // ---------------- Helper methods for compatibility ----------------
   static Future<UserSession?> getPrimitiveSession() async {
     final user = await getUserSession();
     if (user == null) return null;
@@ -138,12 +88,70 @@ class SessionService {
       await saveUserSession(user);
       return true;
     } catch (e) {
-      print('Error saving primitive session: $e');
+      // ignore: avoid_print
+      print('Error saving primitive session to Firestore: $e');
       return false;
     }
   }
 
   static Future<void> clearPrimitiveSession() async {
-    await clearAllLoginData();
+    await logout();
+  }
+
+  // --- Remember-me helpers using SharedPreferences (local-only) ---
+  static const String _emailKey = 'remembered_email';
+  static const String _rememberKey = 'remember_me';
+
+  static Future<void> saveRememberedEmail(String email) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_emailKey, email);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error saving remembered email: $e');
+    }
+  }
+
+  static Future<String?> getRememberedEmail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(_emailKey);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error getting remembered email: $e');
+      return null;
+    }
+  }
+
+  static Future<void> setRememberMe(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_rememberKey, value);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error setting remember me: $e');
+    }
+  }
+
+  static Future<bool> getRememberMe() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_rememberKey) ?? false;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error getting remember me: $e');
+      return false;
+    }
+  }
+
+  static Future<void> clearAllLoginData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_emailKey);
+      await prefs.remove(_rememberKey);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error clearing login data: $e');
+    }
   }
 }

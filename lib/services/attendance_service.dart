@@ -1,21 +1,21 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import '../models/attendance_model.dart';
 
 class AttendanceService {
-  static const String _attendanceKey = 'attendance_records';
+  static final _firestore = FirebaseFirestore.instance;
+  static CollectionReference get _col => _firestore.collection('attendances');
 
   // Get all attendance records
   static Future<List<AttendanceModel>> getAllAttendance() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final attendanceJson = prefs.getStringList(_attendanceKey) ?? [];
-      return attendanceJson
-          .map((json) => AttendanceModel.fromJson(jsonDecode(json)))
+      final snap = await _col.get();
+      return snap.docs
+          .map((d) => AttendanceModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
           .toList();
     } catch (e) {
-      print('Error getting attendance: $e');
+      // ignore: avoid_print
+      print('Error getting attendance from Firestore: $e');
       return [];
     }
   }
@@ -23,18 +23,11 @@ class AttendanceService {
   // Add attendance record
   static Future<bool> addAttendance(AttendanceModel attendance) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final records = await getAllAttendance();
-      records.add(attendance);
-
-      final attendanceJson = records
-          .map((att) => jsonEncode(att.toJson()))
-          .toList();
-
-      await prefs.setStringList(_attendanceKey, attendanceJson);
+      await _col.doc(attendance.id).set(attendance.toJson());
       return true;
     } catch (e) {
-      print('Error adding attendance: $e');
+      // ignore: avoid_print
+      print('Error adding attendance to Firestore: $e');
       return false;
     }
   }
@@ -42,23 +35,14 @@ class AttendanceService {
   // Update attendance record
   static Future<bool> updateAttendance(AttendanceModel attendance) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final records = await getAllAttendance();
-      
-      final index = records.indexWhere((a) => a.id == attendance.id);
-      if (index != -1) {
-        records[index] = attendance;
-        
-        final attendanceJson = records
-            .map((att) => jsonEncode(att.toJson()))
-            .toList();
-        
-        await prefs.setStringList(_attendanceKey, attendanceJson);
-        return true;
-      }
-      return false;
+      final docRef = _col.doc(attendance.id);
+      final doc = await docRef.get();
+      if (!doc.exists) return false;
+      await docRef.update(attendance.toJson());
+      return true;
     } catch (e) {
-      print('Error updating attendance: $e');
+      // ignore: avoid_print
+      print('Error updating attendance in Firestore: $e');
       return false;
     }
   }
@@ -66,19 +50,11 @@ class AttendanceService {
   // Delete attendance record
   static Future<bool> deleteAttendance(String id) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final records = await getAllAttendance();
-      
-      records.removeWhere((a) => a.id == id);
-      
-      final attendanceJson = records
-          .map((att) => jsonEncode(att.toJson()))
-          .toList();
-      
-      await prefs.setStringList(_attendanceKey, attendanceJson);
+      await _col.doc(id).delete();
       return true;
     } catch (e) {
-      print('Error deleting attendance: $e');
+      // ignore: avoid_print
+      print('Error deleting attendance from Firestore: $e');
       return false;
     }
   }
@@ -90,14 +66,19 @@ class AttendanceService {
     int year,
   ) async {
     try {
-      final allRecords = await getAllAttendance();
-      return allRecords.where((att) {
-        return att.employeeId == employeeId &&
-            att.month == month &&
-            att.year == year;
-      }).toList()..sort((a, b) => a.day.compareTo(b.day));
+      final snap = await _col
+          .where('employeeId', isEqualTo: employeeId)
+          .where('month', isEqualTo: month)
+          .where('year', isEqualTo: year)
+          .orderBy('day')
+          .get();
+
+      return snap.docs
+          .map((d) => AttendanceModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .toList();
     } catch (e) {
-      print('Error getting attendance by month: $e');
+      // ignore: avoid_print
+      print('Error querying attendance by month from Firestore: $e');
       return [];
     }
   }
@@ -129,8 +110,8 @@ class AttendanceService {
       }
 
       final standardHours = standardHoursPerDay * 22; // 22 working days
-      final attendancePercentage = records.isEmpty 
-          ? 0.0 
+      final attendancePercentage = records.isEmpty
+          ? 0.0
           : (totalDays / records.length) * 100;
 
       return AttendanceSummary(
@@ -142,7 +123,8 @@ class AttendanceService {
         attendancePercentage: attendancePercentage,
       );
     } catch (e) {
-      print('Error getting attendance summary: $e');
+      // ignore: avoid_print
+      print('Error getting attendance summary from Firestore: $e');
       return AttendanceSummary(
         totalDaysPresent: 0,
         totalDaysAbsent: 0,
@@ -154,26 +136,25 @@ class AttendanceService {
     }
   }
 
-  // Generate sample attendance data for testing
+  // Generate sample attendance data for testing (uses batched writes)
   static Future<void> generateSampleAttendance(String employeeId) async {
     try {
       final now = DateTime.now();
-      final records = await getAllAttendance();
+      final existing = await _col
+          .where('employeeId', isEqualTo: employeeId)
+          .where('month', isEqualTo: now.month)
+          .where('year', isEqualTo: now.year)
+          .limit(1)
+          .get();
 
-      // Check if sample data already exists for this month
-      final existing = records.where((att) {
-        return att.employeeId == employeeId &&
-            att.month == now.month &&
-            att.year == now.year;
-      }).length;
+      if (existing.docs.isNotEmpty) return;
 
-      if (existing > 0) return;
+      final batch = FirebaseFirestore.instance.batch();
 
-      // Generate sample data for the month (22 working days)
       for (int day = 1; day <= 22; day++) {
         final status = day % 10 == 0 ? 'tidak_hadir' : (day % 7 == 0 ? 'terlambat' : 'hadir');
-        
         final entryMinute = status == 'terlambat' ? 30 : 0;
+
         final attendance = AttendanceModel(
           id: '${employeeId}_${now.month}_${now.year}_$day',
           employeeId: employeeId,
@@ -181,20 +162,25 @@ class AttendanceService {
           month: now.month,
           year: now.year,
           status: status,
-          entryTime: status != 'tidak_hadir' 
+          entryTime: status != 'tidak_hadir'
               ? TimeOfDay(hour: 8, minute: entryMinute)
               : null,
-          exitTime: status != 'tidak_hadir' 
+          exitTime: status != 'tidak_hadir'
               ? const TimeOfDay(hour: 17, minute: 0)
               : null,
           hoursWorked: status != 'tidak_hadir' ? 8.5 : 0,
           isPresent: status != 'tidak_hadir',
           notes: status == 'terlambat' ? 'Terlambat 30 menit' : null,
         );
-        await addAttendance(attendance);
+
+        final docRef = _col.doc(attendance.id);
+        batch.set(docRef, attendance.toJson());
       }
+
+      await batch.commit();
     } catch (e) {
-      print('Error generating sample attendance: $e');
+      // ignore: avoid_print
+      print('Error generating sample attendance in Firestore: $e');
     }
   }
 
@@ -217,7 +203,8 @@ class AttendanceService {
       }
       return stats;
     } catch (e) {
-      print('Error getting monthly attendance stats: $e');
+      // ignore: avoid_print
+      print('Error getting monthly attendance stats from Firestore: $e');
       return {};
     }
   }

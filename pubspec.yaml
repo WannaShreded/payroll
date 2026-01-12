@@ -10,31 +10,35 @@ dependencies:
   flutter:
     sdk: flutter
   # State Management
-  provider: ^6.1.0
+  provider: any
 
   # Local Database
-  sqflite: ^2.3.0
-  path_provider: ^2.1.0
-  path: ^1.8.3
+  sqflite: any
+  path_provider: any
+  path: any
 
   # Local Storage
-  shared_preferences: ^2.2.2
+  shared_preferences: any
 
   # Date & Time
-  intl: ^0.19.0
+  intl: any
 
   # UI Components
-  flutter_svg: ^2.0.9
+  flutter_svg: any
 
   # PDF Generation
-  pdf: ^3.10.7
-  printing: ^5.12.0
+  pdf: any
+  printing: any
 
   # Security (Password Hashing)
-  crypto: ^3.0.3
+  crypto: any
 
   # Form Validation
-  email_validator: ^2.1.17
+  email_validator: any
+  # Firebase
+  firebase_core: any
+  firebase_auth: any
+  cloud_firestore: any
 
 flutter:
   uses-material-design: true

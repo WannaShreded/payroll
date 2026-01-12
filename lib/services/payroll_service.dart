@@ -1,22 +1,22 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/payroll_model.dart';
 import '../models/employee_model.dart';
 import 'attendance_service.dart';
 
 class PayrollService {
-  static const String _payrollKey = 'payroll_records';
+  static final _firestore = FirebaseFirestore.instance;
+  static CollectionReference get _col => _firestore.collection('payrolls');
 
   // Get all payroll records
   static Future<List<PayrollModel>> getAllPayroll() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final payrollJson = prefs.getStringList(_payrollKey) ?? [];
-      return payrollJson
-          .map((json) => PayrollModel.fromJson(jsonDecode(json)))
+      final snap = await _col.get();
+      return snap.docs
+          .map((d) => PayrollModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
           .toList();
     } catch (e) {
-      print('Error getting payroll: $e');
+      // ignore: avoid_print
+      print('Error getting payroll from Firestore: $e');
       return [];
     }
   }
@@ -59,6 +59,7 @@ class PayrollService {
 
       return payroll;
     } catch (e) {
+      // ignore: avoid_print
       print('Error calculating payroll: $e');
       rethrow;
     }
@@ -67,26 +68,14 @@ class PayrollService {
   // Save payroll record
   static Future<bool> savePayroll(PayrollModel payroll) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final records = await getAllPayroll();
+      final docRef = _col.doc(payroll.id);
 
-      // Remove existing payroll for same employee/month/year
-      records.removeWhere((p) {
-        return p.employeeId == payroll.employeeId &&
-            p.month == payroll.month &&
-            p.year == payroll.year;
-      });
-
-      records.add(payroll);
-
-      final payrollJson = records
-          .map((p) => jsonEncode(p.toJson()))
-          .toList();
-
-      await prefs.setStringList(_payrollKey, payrollJson);
+      // Upsert payroll for same employee/month/year
+      await docRef.set(payroll.toJson());
       return true;
     } catch (e) {
-      print('Error saving payroll: $e');
+      // ignore: avoid_print
+      print('Error saving payroll to Firestore: $e');
       return false;
     }
   }
@@ -98,30 +87,18 @@ class PayrollService {
     int year,
   ) async {
     try {
-      final records = await getAllPayroll();
-      final payroll = records.firstWhere(
-        (p) =>
-            p.employeeId == employeeId &&
-            p.month == month &&
-            p.year == year,
-        orElse: () => PayrollModel(
-          id: '',
-          employeeId: employeeId,
-          month: month,
-          year: year,
-          baseSalary: 0,
-          transportAllowance: 0,
-          mealAllowance: 0,
-          totalNetSalary: 0,
-          totalDaysPresent: 0,
-          totalHoursWorked: 0,
-          hourlyRate: 0,
-          createdAt: DateTime.now(),
-        ),
-      );
-      return payroll.id.isNotEmpty ? payroll : null;
+      final snap = await _col
+          .where('employeeId', isEqualTo: employeeId)
+          .where('month', isEqualTo: month)
+          .where('year', isEqualTo: year)
+          .limit(1)
+          .get();
+
+      if (snap.docs.isEmpty) return null;
+      return PayrollModel.fromJson(Map<String, dynamic>.from(snap.docs.first.data() as Map));
     } catch (e) {
-      print('Error getting payroll: $e');
+      // ignore: avoid_print
+      print('Error getting payroll by month from Firestore: $e');
       return null;
     }
   }
@@ -129,14 +106,18 @@ class PayrollService {
   // Get payroll history for employee
   static Future<List<PayrollModel>> getPayrollHistory(String employeeId) async {
     try {
-      final records = await getAllPayroll();
-      return records.where((p) => p.employeeId == employeeId).toList()
-        ..sort((a, b) {
-          if (a.year != b.year) return b.year.compareTo(a.year);
-          return b.month.compareTo(a.month);
-        });
+      final snap = await _col
+          .where('employeeId', isEqualTo: employeeId)
+          .orderBy('year', descending: true)
+          .orderBy('month', descending: true)
+          .get();
+
+      return snap.docs
+          .map((d) => PayrollModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .toList();
     } catch (e) {
-      print('Error getting payroll history: $e');
+      // ignore: avoid_print
+      print('Error getting payroll history from Firestore: $e');
       return [];
     }
   }

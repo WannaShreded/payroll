@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/login_page.dart';
 import 'screens/dashboard_page.dart';
 import 'services/session_service.dart';
@@ -9,6 +11,18 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize Firebase (ensure platform-specific config files are present)
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // If Firebase isn't configured yet (e.g. no google-services files), we continue.
+    // The developer should run `flutterfire configure` and add platform files.
+    // ignore: avoid_print
+    print('Firebase initialization warning: $e');
+  }
+
   await initializeDateFormatting('id_ID', null);
   runApp(const MainApp());
 }

@@ -51,6 +51,7 @@ class AppText {
   static const String alreadyHaveAccount = 'Sudah punya akun? ';
   static const String login = 'Login';
   static const String successRegister = 'Pendaftaran berhasil!';
+  static const String errorRegister = 'Pendaftaran gagal. Silakan coba lagi.';
   static const String agreeTermsError = 'Silakan setujui syarat & ketentuan';
 
   // Login Page

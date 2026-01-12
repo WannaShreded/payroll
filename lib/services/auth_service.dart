@@ -1,6 +1,5 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 
 import '../models/user_model.dart';
@@ -8,33 +7,12 @@ import '../models/user_session.dart';
 import 'session_service.dart';
 
 class AuthService {
-  static const String _usersKey = 'auth_users';
+  static final _auth = FirebaseAuth.instance;
+  static final _firestore = FirebaseFirestore.instance;
 
-  // Internal: load stored user records (they include hashed password)
-  static Future<List<Map<String, dynamic>>> _loadUserRecords() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = prefs.getStringList(_usersKey) ?? [];
-      return list.map((s) => jsonDecode(s) as Map<String, dynamic>).toList();
-    } catch (e) {
-      print('Error loading user records: $e');
-      return [];
-    }
-  }
-
-  static Future<bool> _saveUserRecords(List<Map<String, dynamic>> records) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = records.map((r) => jsonEncode(r)).toList();
-      await prefs.setStringList(_usersKey, list);
-      return true;
-    } catch (e) {
-      print('Error saving user records: $e');
-      return false;
-    }
-  }
-
-  // Register flow
+  // Register using FirebaseAuth + create user profile in Firestore.
+  // Before: stored hashed passwords in SharedPreferences (insecure and local-only).
+  // After: use Firebase Auth to manage credentials and Firestore to store profile.
   static Future<bool> registerUser({
     required String name,
     required String email,
@@ -42,76 +20,94 @@ class AuthService {
     required String role,
     required String password,
   }) async {
-    // 1. Validate input
     if (!EmailValidator.validate(email)) return false;
     if (password.length < 8) return false;
 
-    final records = await _loadUserRecords();
+    try {
+      final userCred = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    // 2. Check existing
-    final exists = records.any((r) => (r['email'] ?? '').toString().toLowerCase() == email.toLowerCase());
-    if (exists) return false;
+      final uid = userCred.user!.uid;
 
-    // 3. Hash password
-    final hashed = sha256.convert(utf8.encode(password)).toString();
+      final userModel = UserModel(
+        id: uid,
+        fullName: name,
+        email: email,
+        phone: phone,
+        role: role,
+        createdAt: DateTime.now(),
+      );
 
-    // 4. Create record and save
-    final id = 'USER-${DateTime.now().millisecondsSinceEpoch}';
-    final createdAt = DateTime.now().toIso8601String();
-    final record = {
-      'id': id,
-      'fullName': name,
-      'email': email,
-      'phone': phone,
-      'role': role,
-      'password': hashed,
-      'createdAt': createdAt,
-    };
+      // Save profile in Firestore under `users/{uid}`
+      await _firestore.collection('users').doc(uid).set(userModel.toJson());
 
-    records.add(record);
-    return await _saveUserRecords(records);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      // Handle auth-specific errors (email-already-in-use, weak-password, etc.)
+      // ignore: avoid_print
+      print('FirebaseAuth register error: ${e.code} ${e.message}');
+      return false;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Register error: $e');
+      return false;
+    }
   }
 
-  // Login flow
+  // Login using FirebaseAuth, then load profile from Firestore and save session
   static Future<UserSession?> loginUser({
     required String email,
     required String password,
   }) async {
-    final records = await _loadUserRecords();
-    final record = records.firstWhere(
-      (r) => (r['email'] ?? '').toString().toLowerCase() == email.toLowerCase(),
-      orElse: () => {},
-    );
+    try {
+      final userCred = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (record.isEmpty) return null;
+      final uid = userCred.user!.uid;
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (!doc.exists) return null;
 
-    final hashed = sha256.convert(utf8.encode(password)).toString();
-    if ((record['password'] ?? '') != hashed) return null;
+      final userMap = doc.data()!;
+      final user = UserModel.fromJson(Map<String, dynamic>.from(userMap));
 
-    // Build UserModel and save session via SessionService
-    final userMap = Map<String, dynamic>.from(record);
-    // Remove password before building UserModel
-    userMap.remove('password');
+      // Save local session (keeps app behavior compatible)
+      await SessionService.saveUserSession(user);
 
-    final user = UserModel.fromJson(userMap);
-    await SessionService.saveUserSession(user);
+      final session = UserSession(
+        id: user.id,
+        name: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        createdAt: user.createdAt.toIso8601String(),
+      );
 
-    // Also save primitive UserSession for convenience
-    final session = UserSession(
-      id: user.id,
-      name: user.fullName,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      createdAt: user.createdAt.toIso8601String(),
-    );
-    await session.saveSession();
+      await session.saveSession();
 
-    return session;
+      return session;
+    } on FirebaseAuthException catch (e) {
+      // ignore: avoid_print
+      print('FirebaseAuth login error: ${e.code} ${e.message}');
+      return null;
+    } catch (e) {
+      // ignore: avoid_print
+      print('Login error: $e');
+      return null;
+    }
   }
 
-  // Logout flow
+  // Logout using FirebaseAuth and clear local session
   static Future<void> logoutUser() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      // ignore: avoid_print
+      print('FirebaseAuth signOut error: $e');
+    }
     await SessionService.logout();
     await UserSession.clearSession();
   }
