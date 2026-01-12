@@ -1,9 +1,15 @@
+
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'screens/login_page.dart';
 import 'screens/dashboard_page.dart';
 import 'services/session_service.dart';
+import 'theme/app_theme.dart';
 
-void main() {
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
   runApp(const MainApp());
 }
 
@@ -14,10 +20,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Payroll App',
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.purple,
-      ),
+      theme: AppTheme.lightTheme,
       home: const InitialRoutePage(),
       debugShowCheckedModeBanner: false,
     );

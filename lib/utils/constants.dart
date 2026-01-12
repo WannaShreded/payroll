@@ -21,6 +21,19 @@ class AppConstants {
   static const int registrationDelaySeconds = 2;
   static const int loginDelaySeconds = 2;
   static const int redirectDelaySeconds = 1;
+
+  static const Map<String, double> positionHourlyRates = {
+    'Direktur Utama': 150000,
+    'Direktur': 125000,
+    'General Manager': 100000,
+    'Manager': 80000,
+    'Supervisor': 60000,
+    'Staff Senior': 45000,
+    'Staff': 35000,
+    'Staff Junior': 25000,
+    'Operator': 20000,
+    'Magang': 15000,
+  };
 }
 
 class AppText {

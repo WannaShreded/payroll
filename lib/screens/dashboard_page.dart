@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../utils/constants.dart';
+
 import '../widgets/stat_card.dart';
 import '../widgets/menu_grid_item.dart';
 import 'employee_page.dart';
@@ -8,6 +9,8 @@ import 'payroll_page.dart';
 import 'attendance_page.dart';
 import 'report_page.dart';
 import 'profile_page.dart';
+import '../services/employee_service.dart';
+import '../services/payroll_service.dart';
 
 class DashboardPage extends StatefulWidget {
   final UserModel user;
@@ -19,14 +22,50 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  int _selectedIndex = 0;
+    Future<Map<String, dynamic>> _fetchDashboardStats() async {
+      // Get total employees
+      final employees = await EmployeeService.getAllEmployees();
+      final totalEmployees = employees.length;
 
-  late List<Widget> _pages;
+      // Get payroll data for current month
+      final now = DateTime.now();
+      final payrollRecords = await PayrollService.getAllPayroll();
+      final currentMonthPayroll = payrollRecords.where((p) =>
+          p.month == now.month && p.year == now.year);
+      final totalSalary = currentMonthPayroll.fold<double>(
+          0, (sum, payroll) => sum + payroll.totalNetSalary);
+
+      String formattedSalary = _formatCurrency(totalSalary);
+
+      return {
+        'totalEmployees': totalEmployees,
+        'totalSalary': formattedSalary,
+      };
+    }
+
+    String _formatCurrency(double amount) {
+      final formatter = amount.toStringAsFixed(0);
+      final parts = formatter.split('');
+      final result = <String>[];
+      for (int i = parts.length - 1; i >= 0; i--) {
+        if (result.length > 0 && result.length % 3 == 0) {
+          result.insert(0, '.');
+        }
+        result.insert(0, parts[i]);
+      }
+      return 'Rp ${result.join()}';
+    }
+  int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _pages = [
+    // Don't build pages here - build them in build() method
+  }
+
+  // Lazy build pages to avoid context-dependent operations in initState
+  List<Widget> _buildPages() {
+    return [
       _buildHomePage(),
       EmployeePage(user: widget.user),
       PayrollPage(user: widget.user),
@@ -151,26 +190,55 @@ class _DashboardPageState extends State<DashboardPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Quick Stats Cards
-                Row(
-                  children: [
-                    Expanded(
-                      child: StatCard(
-                        title: AppText.totalEmployees,
-                        value: '125',
-                        icon: Icons.people,
-                        bgColor: AppColors.orange,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: StatCard(
-                        title: AppText.totalSalary,
-                        value: 'Rp 125.5M',
-                        icon: Icons.attach_money,
-                        bgColor: AppColors.success,
-                      ),
-                    ),
-                  ],
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _fetchDashboardStats(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Row(
+                        children: [
+                          Expanded(
+                            child: StatCard(
+                              title: AppText.totalEmployees,
+                              value: '-',
+                              icon: Icons.people,
+                              bgColor: AppColors.orange,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: StatCard(
+                              title: AppText.totalSalary,
+                              value: '-',
+                              icon: Icons.attach_money,
+                              bgColor: AppColors.success,
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    final stats = snapshot.data ?? {};
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: StatCard(
+                            title: AppText.totalEmployees,
+                            value: stats['totalEmployees']?.toString() ?? '-',
+                            icon: Icons.people,
+                            bgColor: AppColors.orange,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: StatCard(
+                            title: AppText.totalSalary,
+                            value: stats['totalSalary'] ?? '-',
+                            icon: Icons.attach_money,
+                            bgColor: AppColors.success,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 32),
                 // Menu Title
@@ -216,7 +284,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => AttendancePage(user: widget.user),
+                            builder: (_) => AttendancePage(),
                           ),
                         );
                       },
@@ -228,7 +296,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => ReportPage(user: widget.user),
+                            builder: (_) => ReportPage(),
                           ),
                         );
                       },
@@ -251,8 +319,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = _buildPages(); // Build pages lazily in build method
+    
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onNavItemTapped,

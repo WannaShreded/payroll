@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/employee_model.dart';
-import '../models/position_model.dart';
 import '../utils/constants.dart';
 import '../services/employee_service.dart';
 import '../services/payroll_service.dart';
@@ -19,7 +18,6 @@ class PayrollPage extends StatefulWidget {
 
 class _PayrollPageState extends State<PayrollPage> {
   List<EmployeeModel> _employees = [];
-  EmployeeModel? _selectedEmployee;
   bool _isLoading = true;
   int _selectedMonth = DateTime.now().month;
   int _selectedYear = DateTime.now().year;

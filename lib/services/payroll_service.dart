@@ -33,6 +33,7 @@ class PayrollService {
         employee.id,
         month,
         year,
+        employee.standardHoursPerDay,
       );
 
       // Calculate salary
