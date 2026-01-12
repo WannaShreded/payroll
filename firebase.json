@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"payroll-7c0fd","appId":"1:673201794334:android:e7ee2d417a09b1621aad0f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"payroll-7c0fd","configurations":{"android":"1:673201794334:android:e7ee2d417a09b1621aad0f","web":"1:673201794334:web:562320dc0c624ba81aad0f"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "payroll-7c0fd",
+          "appId": "1:673201794334:android:e7ee2d417a09b1621aad0f",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "payroll-7c0fd",
+          "configurations": {
+            "android": "1:673201794334:android:e7ee2d417a09b1621aad0f",
+            "web": "1:673201794334:web:562320dc0c624ba81aad0f"
+          }
+        }
+      }
+    }
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true
+  }
+}
