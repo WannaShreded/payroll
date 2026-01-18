@@ -6,6 +6,7 @@ import '../services/employee_service.dart';
 import '../services/payroll_service.dart';
 import '../services/attendance_service.dart';
 import '../widgets/salary_slip.dart';
+import '../widgets/app_shell.dart';
 
 class PayrollPage extends StatefulWidget {
   final UserModel user;
@@ -88,7 +89,9 @@ class _PayrollPageState extends State<PayrollPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppShell(
+      user: widget.user,
+      currentIndex: 2,
       appBar: AppBar(
         title: const Text('Penggajian'),
         backgroundColor: AppColors.primaryGradientStart,

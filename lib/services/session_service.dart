@@ -11,7 +11,14 @@ class SessionService {
   // Save user profile to Firestore and also keep a local copy for compatibility.
   static Future<void> saveUserSession(UserModel user) async {
     try {
-      await _firestore.collection('users').doc(user.id).set(user.toJson());
+      // Enforce role assignment: only Admin session users may set arbitrary roles.
+      final sessionUser = await getUserSession();
+      final data = Map<String, dynamic>.from(user.toJson());
+      if (sessionUser == null || sessionUser.role != 'Admin') {
+        // Non-admins cannot assign roles — default to 'Staff'
+        data['role'] = 'Staff';
+      }
+      await _firestore.collection('users').doc(user.id).set(data);
     } catch (e) {
       // ignore: avoid_print
       print('Error saving user session to Firestore: $e');
@@ -26,7 +33,13 @@ class SessionService {
       if (!doc.exists) {
         return false;
       }
-      await docRef.update(user.toJson());
+      // Prevent non-admin session users from changing roles.
+      final sessionUser = await getUserSession();
+      final data = Map<String, dynamic>.from(user.toJson());
+      if (sessionUser == null || sessionUser.role != 'Admin') {
+        data.remove('role');
+      }
+      await docRef.update(data);
       return true;
     } catch (e) {
       // ignore: avoid_print

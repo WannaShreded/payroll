@@ -157,5 +157,50 @@ class AuthService {
     await SessionService.logout();
     await UserSession.clearSession();
   }
+
+  /// Send password reset email using Firebase Auth.
+  /// Returns `true` on success, `false` on failure.
+  static Future<bool> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      // ignore: avoid_print
+      print('sendPasswordResetEmail error: ${e.code} ${e.message}');
+      return false;
+    } catch (e) {
+      // ignore: avoid_print
+      print('sendPasswordResetEmail unexpected error: $e');
+      return false;
+    }
+  }
+
+  /// Change password for currently signed-in user.
+  /// Reauthenticates using the user's current email and `oldPassword`, then updates to `newPassword`.
+  /// Returns `true` on success, `false` on failure.
+  static Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+    final email = user.email;
+    if (email == null) return false;
+
+    try {
+      final cred = EmailAuthProvider.credential(email: email, password: oldPassword);
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPassword);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      // ignore: avoid_print
+      print('changePassword error: ${e.code} ${e.message}');
+      return false;
+    } catch (e) {
+      // ignore: avoid_print
+      print('changePassword unexpected error: $e');
+      return false;
+    }
+  }
 }
 

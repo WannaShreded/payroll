@@ -85,7 +85,6 @@ class AppText {
   static const String accountInfo = 'Informasi Akun';
   static const String name = 'Nama';
   static const String quickActions = 'Aksi Cepat';
-  static const String notifications = 'Notifikasi';
 
   // General
   static const String comingSoon = 'Coming Soon';

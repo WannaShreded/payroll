@@ -82,16 +82,10 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   @override
   Widget build(BuildContext context) {
     final estimatedSalary = _employee.getEstimatedSalary();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Karyawan'),
-        backgroundColor: AppColors.primaryGradientStart,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
             // Avatar with initials
             Container(
               width: 120,
@@ -132,7 +126,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGradientStart.withOpacity(0.1),
+                    color: AppColors.primaryGradientStart.withAlpha(26),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppColors.primaryGradientStart),
                   ),
@@ -148,7 +142,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withAlpha(26),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: Colors.green),
                   ),
@@ -187,7 +181,7 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withAlpha(26),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -237,25 +231,11 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Cetak Detail - Coming Soon')),
-                    );
-                  },
-                  icon: const Icon(Icons.print),
-                  label: const Text('Cetak'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  ),
-                ),
+                // Print action removed per request
               ],
             ),
           ],
         ),
-      ),
     );
   }
 

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/user_model.dart';
 import '../services/session_service.dart';
+import '../services/auth_service.dart';
 import 'login_page.dart';
+import '../widgets/app_shell.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserModel user;
@@ -66,11 +68,22 @@ class _ProfilePageState extends State<ProfilePage> {
     showDialog(
       context: context,
       builder: (context) => ChangePasswordDialog(
-        onSave: () {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Password berhasil diubah')),
+        onSave: (oldPass, newPass) async {
+          final ok = await AuthService.changePassword(
+            oldPassword: oldPass,
+            newPassword: newPass,
           );
+          if (!mounted) return;
+          Navigator.pop(context);
+          if (ok) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Password berhasil diubah')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Gagal mengubah password. Pastikan password lama benar.')),
+            );
+          }
         },
       ),
     );
@@ -78,8 +91,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+    return AppShell(
+      user: widget.user,
+      currentIndex: 3,
       appBar: AppBar(
         title: const Text('Profil'),
         backgroundColor: const Color(0xFF667eea),
@@ -88,7 +102,7 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Header with gradient
+            // Modern header: elevated card on gradient background
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -97,62 +111,98 @@ class _ProfilePageState extends State<ProfilePage> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Avatar with initials
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 3,
-                      ),
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
-                    child: Center(
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: const Color(0xFF667eea),
                       child: Text(
                         _currentUser.getInitials(),
                         style: const TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 28,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  // User name
-                  Text(
-                    _currentUser.fullName,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  // Status badge
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Aktif',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _currentUser.fullName,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).textTheme.titleLarge?.color,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              if (_currentUser.role.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF667eea).withAlpha(30),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    _currentUser.role,
+                                    style: const TextStyle(
+                                      color: Color(0xFF667eea),
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(width: 8),
+                              if (_currentUser.phone.isNotEmpty)
+                                Text(
+                                  _currentUser.phone,
+                                  style: TextStyle(
+                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _currentUser.email,
+                            style: TextStyle(
+                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             // User info cards
@@ -291,7 +341,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF667eea).withOpacity(0.1),
+              color: const Color(0xFF667eea).withAlpha(26),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: const Color(0xFF667eea), size: 20),
@@ -357,6 +407,8 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     _phoneController = TextEditingController(text: widget.user.phone);
     _selectedRole = widget.user.role;
   }
+
+  
 
   @override
   void dispose() {
@@ -426,22 +478,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 },
               ),
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: _selectedRole,
-                decoration: const InputDecoration(
-                  labelText: 'Jabatan/Role',
-                  border: OutlineInputBorder(),
-                ),
-                items: ['Admin', 'Manager', 'Staff', 'Supervisor']
-                    .map((role) => DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
-                        ))
-                    .toList(),
-                onChanged: (value) {
-                  setState(() => _selectedRole = value ?? 'Staff');
-                },
-              ),
+              // Role change removed from Edit Profile (admin-only elsewhere)
             ],
           ),
         ),
@@ -458,7 +495,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 fullName: _nameController.text,
                 email: _emailController.text,
                 phone: _phoneController.text,
-                role: _selectedRole,
+                role: widget.user.role,
               );
               widget.onSave(updatedUser);
             }
@@ -478,7 +515,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
 // Change Password Dialog
 class ChangePasswordDialog extends StatefulWidget {
-  final VoidCallback onSave;
+  final void Function(String oldPassword, String newPassword) onSave;
 
   const ChangePasswordDialog({Key? key, required this.onSave})
       : super(key: key);
@@ -605,7 +642,10 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
-              widget.onSave();
+              widget.onSave(
+                _oldPasswordController.text,
+                _newPasswordController.text,
+              );
             }
           },
           style: ElevatedButton.styleFrom(

@@ -72,6 +72,8 @@ class _LoginPageState extends State<LoginPage> {
           await SessionService.saveRememberedEmail(email);
         } else {
           await SessionService.setRememberMe(false);
+          // Clear any previously stored remembered email when user opts out
+          await SessionService.saveRememberedEmail('');
         }
 
         // Retrieve stored UserModel
@@ -118,10 +120,15 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  void _showForgotPasswordDialog() {
+    // Forgot password removed by design
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -225,29 +232,7 @@ class _LoginPageState extends State<LoginPage> {
                         contentPadding: EdgeInsets.zero,
                       ),
                       const SizedBox(height: 8),
-                      // Forgot Password Link
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: GestureDetector(
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Fitur Lupa Password: ${AppText.comingSoon}'),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            AppText.forgotPassword,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  color: AppColors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ),
-                      ),
+                      // (Forgot password removed)
                       const SizedBox(height: 32),
                       // Login Button
                       SizedBox(
@@ -321,47 +306,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
-                // Demo Credentials
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white30),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Demo Credentials:',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.white70,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Admin: admin@payroll.com / Admin123',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.white,
-                            ),
-                      ),
-                      Text(
-                        'Manager: manager@payroll.com / Manager123',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.white,
-                            ),
-                      ),
-                      Text(
-                        'Staff: staff@payroll.com / Staff123',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.white,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),

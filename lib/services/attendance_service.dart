@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/attendance_model.dart';
@@ -66,21 +67,77 @@ class AttendanceService {
     int year,
   ) async {
     try {
-      final snap = await _col
-          .where('employeeId', isEqualTo: employeeId)
-          .where('month', isEqualTo: month)
-          .where('year', isEqualTo: year)
-          .orderBy('day')
-          .get();
+      // To avoid requiring a composite index, query by employeeId only
+      // and filter/sort client-side by month/year/day.
+      final snap = await _col.where('employeeId', isEqualTo: employeeId).get();
 
-      return snap.docs
+      final list = snap.docs
           .map((d) => AttendanceModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .where((a) => a.month == month && a.year == year)
           .toList();
+
+      list.sort((a, b) => a.day.compareTo(b.day));
+      return list;
     } catch (e) {
       // ignore: avoid_print
       print('Error querying attendance by month from Firestore: $e');
       return [];
     }
+  }
+
+  // Stream attendance for a specific employee/month/year for realtime updates
+  static Stream<List<AttendanceModel>> streamAttendanceByMonth(
+    String employeeId,
+    int month,
+    int year,
+  ) {
+    // Use a StreamController to intercept snapshot errors (e.g. missing composite index)
+    final controller = StreamController<List<AttendanceModel>>.broadcast();
+    late StreamSubscription<QuerySnapshot> sub;
+
+    void start() {
+      try {
+        // Query by employeeId only to avoid composite index requirement.
+        final query = _col.where('employeeId', isEqualTo: employeeId);
+
+        sub = query.snapshots().listen((snap) {
+          final List<AttendanceModel> list = [];
+          for (var d in snap.docs) {
+            try {
+              final data = Map<String, dynamic>.from(d.data() as Map);
+              final att = AttendanceModel.fromJson(data);
+              if (att.month == month && att.year == year) list.add(att);
+            } catch (e) {
+              // ignore: avoid_print
+              print('Error parsing attendance doc ${d.id}: $e');
+              // skip problematic document
+            }
+          }
+          list.sort((a, b) => a.day.compareTo(b.day));
+          controller.add(list);
+        }, onError: (e) {
+          // ignore: avoid_print
+          print('Attendance snapshots error: $e');
+          // emit empty list so UI can render instead of staying stuck
+          controller.add(<AttendanceModel>[]);
+        });
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error creating attendance stream: $e');
+        controller.add(<AttendanceModel>[]);
+      }
+    }
+
+    start();
+
+    controller.onCancel = () async {
+      try {
+        await sub.cancel();
+      } catch (_) {}
+      await controller.close();
+    };
+
+    return controller.stream;
   }
 
   // Get attendance summary for month
@@ -94,17 +151,14 @@ class AttendanceService {
       final records = await getAttendanceByMonth(employeeId, month, year);
       int totalDays = 0;
       int totalAbsent = 0;
-      int totalLate = 0;
       double totalHours = 0;
 
       for (var record in records) {
-        if (record.status == 'hadir') {
-          totalDays++;
-          totalHours += record.hoursWorked;
-        } else if (record.status == 'tidak_hadir') {
+        if (record.status == 'tidak_hadir') {
           totalAbsent++;
-        } else if (record.status == 'terlambat') {
-          totalLate++;
+        } else {
+          // treat any non-absent (including legacy 'terlambat') as present
+          totalDays++;
           totalHours += record.hoursWorked;
         }
       }
@@ -117,7 +171,7 @@ class AttendanceService {
       return AttendanceSummary(
         totalDaysPresent: totalDays,
         totalDaysAbsent: totalAbsent,
-        totalDaysLate: totalLate,
+        totalDaysLate: 0,
         totalHoursWorked: totalHours,
         standardHours: standardHours.toDouble(),
         attendancePercentage: attendancePercentage,
@@ -140,20 +194,36 @@ class AttendanceService {
   static Future<void> generateSampleAttendance(String employeeId) async {
     try {
       final now = DateTime.now();
-      final existing = await _col
-          .where('employeeId', isEqualTo: employeeId)
-          .where('month', isEqualTo: now.month)
-          .where('year', isEqualTo: now.year)
-          .limit(1)
-          .get();
+      // Check existence by querying by employeeId and inspecting month/year client-side
+      final existingSnap = await _col.where('employeeId', isEqualTo: employeeId).limit(50).get();
+      final alreadyExists = existingSnap.docs.any((d) {
+        try {
+          final data = Map<String, dynamic>.from(d.data() as Map);
+          final att = AttendanceModel.fromJson(data);
+          return att.month == now.month && att.year == now.year;
+        } catch (_) {
+          return false;
+        }
+      });
 
-      if (existing.docs.isNotEmpty) return;
+      if (alreadyExists) return;
 
       final batch = FirebaseFirestore.instance.batch();
 
       for (int day = 1; day <= 22; day++) {
-        final status = day % 10 == 0 ? 'tidak_hadir' : (day % 7 == 0 ? 'terlambat' : 'hadir');
-        final entryMinute = status == 'terlambat' ? 30 : 0;
+        final isAbsent = day % 10 == 0;
+        final lateMinute = day % 7 == 0 ? 30 : 0; // mark some days as late but treat as hadir
+        final status = isAbsent ? 'tidak_hadir' : 'hadir';
+        final entryMinute = isAbsent ? 0 : lateMinute;
+
+        final exitHour = 17;
+        final exitMinute = 0;
+        int minutesWorked = 0;
+        if (!isAbsent) {
+          final entryTotal = 8 * 60 + entryMinute;
+          final exitTotal = exitHour * 60 + exitMinute;
+          minutesWorked = (exitTotal - entryTotal).clamp(0, 24 * 60);
+        }
 
         final attendance = AttendanceModel(
           id: '${employeeId}_${now.month}_${now.year}_$day',
@@ -166,11 +236,11 @@ class AttendanceService {
               ? TimeOfDay(hour: 8, minute: entryMinute)
               : null,
           exitTime: status != 'tidak_hadir'
-              ? const TimeOfDay(hour: 17, minute: 0)
+              ? TimeOfDay(hour: exitHour, minute: exitMinute)
               : null,
-          hoursWorked: status != 'tidak_hadir' ? 8.5 : 0,
+          hoursWorked: status != 'tidak_hadir' ? (minutesWorked / 60.0) : 0,
           isPresent: status != 'tidak_hadir',
-          notes: status == 'terlambat' ? 'Terlambat 30 menit' : null,
+          notes: (!isAbsent && lateMinute > 0) ? 'Terlambat ${lateMinute} menit' : null,
         );
 
         final docRef = _col.doc(attendance.id);
@@ -207,5 +277,89 @@ class AttendanceService {
       print('Error getting monthly attendance stats from Firestore: $e');
       return {};
     }
+  }
+
+  // Stream monthly attendance stats for a set of employees
+  static Stream<Map<String, AttendanceSummary>> streamMonthlyAttendanceStats(
+    List<String> employeeIds,
+    int month,
+    int year,
+    int standardHoursPerDay,
+  ) {
+    final controller = StreamController<Map<String, AttendanceSummary>>.broadcast();
+    late StreamSubscription<QuerySnapshot> sub;
+
+    void start() {
+      try {
+        final query = _col.where('month', isEqualTo: month).where('year', isEqualTo: year);
+
+        sub = query.snapshots().listen((snap) {
+          final grouped = <String, List<AttendanceModel>>{};
+          for (var doc in snap.docs) {
+            try {
+              final data = Map<String, dynamic>.from(doc.data() as Map);
+              final att = AttendanceModel.fromJson(data);
+              if (!employeeIds.contains(att.employeeId)) continue;
+              grouped.putIfAbsent(att.employeeId, () => []).add(att);
+            } catch (e) {
+              // ignore: avoid_print
+              print('Error parsing attendance doc ${doc.id}: $e');
+              // skip problematic document
+            }
+          }
+
+          final stats = <String, AttendanceSummary>{};
+          for (var empId in employeeIds) {
+            final records = grouped[empId] ?? [];
+            int totalDays = 0;
+            int totalAbsent = 0;
+            double totalHours = 0;
+
+            for (var record in records) {
+              if (record.status == 'tidak_hadir') {
+                totalAbsent++;
+              } else {
+                totalDays++;
+                totalHours += record.hoursWorked;
+              }
+            }
+
+            final standardHours = standardHoursPerDay * 22;
+            final attendancePercentage = records.isEmpty ? 0.0 : (totalDays / records.length) * 100;
+
+            stats[empId] = AttendanceSummary(
+              totalDaysPresent: totalDays,
+              totalDaysAbsent: totalAbsent,
+              totalDaysLate: 0,
+              totalHoursWorked: totalHours,
+              standardHours: standardHours.toDouble(),
+              attendancePercentage: attendancePercentage,
+            );
+          }
+
+          controller.add(stats);
+        }, onError: (e) {
+          // ignore: avoid_print
+          print('Monthly attendance snapshots error: $e');
+          // emit empty map so UI can render fallback state
+          controller.add(<String, AttendanceSummary>{});
+        });
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error creating monthly stats stream: $e');
+        controller.add(<String, AttendanceSummary>{});
+      }
+    }
+
+    start();
+
+    controller.onCancel = () async {
+      try {
+        await sub.cancel();
+      } catch (_) {}
+      await controller.close();
+    };
+
+    return controller.stream;
   }
 }

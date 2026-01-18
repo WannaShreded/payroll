@@ -250,7 +250,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withAlpha(77),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -337,10 +337,6 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                         DropdownMenuItem(
                           value: 'hadir',
                           child: Text('Hadir'),
-                        ),
-                        DropdownMenuItem(
-                          value: 'terlambat',
-                          child: Text('Terlambat'),
                         ),
                         DropdownMenuItem(
                           value: 'tidak_hadir',

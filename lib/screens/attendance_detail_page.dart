@@ -22,8 +22,8 @@ class AttendanceDetailPage extends StatefulWidget {
 }
 
 class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
-  late Future<List<AttendanceModel>> _attendanceFuture;
-  late Future<AttendanceSummary> _summaryFuture;
+  Stream<List<AttendanceModel>>? _attendanceStream;
+  Stream<AttendanceSummary>? _summaryStream;
 
   @override
   void initState() {
@@ -32,17 +32,40 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
   }
 
   void _loadData() {
-    _attendanceFuture = AttendanceService.getAttendanceByMonth(
+    _attendanceStream = AttendanceService.streamAttendanceByMonth(
       widget.employee.id,
       widget.month,
       widget.year,
     );
-    _summaryFuture = AttendanceService.getAttendanceSummary(
-      widget.employee.id,
-      widget.month,
-      widget.year,
-      widget.employee.standardHoursPerDay,
-    );
+
+    // Derive summary from attendance stream
+    _summaryStream = _attendanceStream!.map((records) {
+      int totalDays = 0;
+      int totalAbsent = 0;
+      double totalHours = 0;
+
+      for (var record in records) {
+        if (record.status == 'tidak_hadir') {
+          totalAbsent++;
+        } else {
+          // any non-absent status considered present; includes legacy 'terlambat'
+          totalDays++;
+          totalHours += record.hoursWorked;
+        }
+      }
+
+      final standardHours = widget.employee.standardHoursPerDay * 22;
+      final attendancePercentage = records.isEmpty ? 0.0 : (totalDays / records.length) * 100;
+
+      return AttendanceSummary(
+        totalDaysPresent: totalDays,
+        totalDaysAbsent: totalAbsent,
+        totalDaysLate: 0,
+        totalHoursWorked: totalHours,
+        standardHours: standardHours.toDouble(),
+        attendancePercentage: attendancePercentage,
+      );
+    });
   }
 
   void _refreshData() {
@@ -121,17 +144,12 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: const Text('Detail Absensi'),
-        backgroundColor: const Color(0xFF667eea),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
+    return Container(
+      color: Colors.grey.shade50,
+      child: SingleChildScrollView(
         child: Column(
           children: [
-            // Header with employee info
+            // Header with employee info (profile card style)
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -140,78 +158,102 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                   end: Alignment.bottomRight,
                 ),
               ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Avatar
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.3),
-                      shape: BoxShape.circle,
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
-                    child: Center(
+                  ],
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 36,
+                      backgroundColor: const Color(0xFF667eea),
                       child: Text(
                         widget.employee.getInitials(),
                         style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Name and position
-                  Text(
-                    widget.employee.fullName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.employee.fullName,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).textTheme.titleLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            widget.employee.position,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).textTheme.bodySmall?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Bulan ${_getMonthName(widget.month)} ${widget.year}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).textTheme.bodySmall?.color,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.employee.position,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.white70,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  // Month and year
-                  Text(
-                    'Bulan ${_getMonthName(widget.month)} ${widget.year}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.white60,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            // Stats cards
-            FutureBuilder<AttendanceSummary>(
-              future: _summaryFuture,
+            // Stats cards (realtime via stream)
+            StreamBuilder<AttendanceSummary>(
+              stream: _summaryStream,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Padding(
                     padding: EdgeInsets.all(20),
                     child: CircularProgressIndicator(),
                   );
                 }
 
-                final summary = snapshot.data!;
+                if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text('Error loading summary: ${snapshot.error}'),
+                  );
+                }
+
+                final summary = snapshot.data ?? AttendanceSummary(
+                  totalDaysPresent: 0,
+                  totalDaysAbsent: 0,
+                  totalDaysLate: 0,
+                  totalHoursWorked: 0,
+                  standardHours: widget.employee.standardHoursPerDay * 22.0,
+                  attendancePercentage: 0,
+                );
 
                 return Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      // First row: Present, Late, Absent
+                      // First row: Present, Absent
                       Row(
                         children: [
                           Expanded(
@@ -220,15 +262,6 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                               '${summary.totalDaysPresent}',
                               Colors.green,
                               Icons.check_circle,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildStatCard(
-                              'Terlambat',
-                              '${summary.totalDaysLate}',
-                              Colors.orange,
-                              Icons.schedule,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -363,17 +396,24 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                 ],
               ),
             ),
-            FutureBuilder<List<AttendanceModel>>(
-              future: _attendanceFuture,
+            StreamBuilder<List<AttendanceModel>>(
+              stream: _attendanceStream,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Padding(
                     padding: EdgeInsets.all(20),
                     child: CircularProgressIndicator(),
                   );
                 }
 
-                final records = snapshot.data!;
+                if (snapshot.hasError) {
+                  return Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text('Error loading attendance: ${snapshot.error}'),
+                  );
+                }
+
+                final records = snapshot.data ?? <AttendanceModel>[];
                 if (records.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.all(20),
@@ -428,9 +468,9 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withAlpha(77)),
       ),
       child: Column(
         children: [

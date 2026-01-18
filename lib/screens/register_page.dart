@@ -19,8 +19,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
-  String? _selectedRole;
   bool _agreedToTerms = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -48,7 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
         name: _fullNameController.text.trim(),
         email: _emailController.text.trim(),
         phone: _phoneController.text.trim(),
-        role: _selectedRole ?? AppConstants.roles.first,
+        // Default new users to Staff — only Admin can set/change roles
+        role: 'Staff',
         password: _passwordController.text,
       );
 
@@ -163,9 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         validator: Validators.validatePhone,
                       ),
                       const SizedBox(height: 16),
-                      // Role Dropdown
-                      _buildRoleDropdown(),
-                      const SizedBox(height: 16),
+                      // Role selection removed for regular users. Admins manage roles.
                       // Password
                       _buildPasswordField(
                         controller: _passwordController,
@@ -265,39 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
       validator: validator,
-    );
-  }
-
-  Widget _buildRoleDropdown() {
-    return DropdownButtonFormField<String>(
-      initialValue: _selectedRole,
-      decoration: InputDecoration(
-        hintText: AppText.role,
-        prefixIcon: const Icon(Icons.work),
-        filled: true,
-        fillColor: AppColors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-      ),
-      items: AppConstants.roles.map((role) {
-        return DropdownMenuItem(
-          value: role,
-          child: Text(role),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedRole = value;
-        });
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Pilih jabatan/role';
-        }
-        return null;
-      },
     );
   }
 

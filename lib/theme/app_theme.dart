@@ -17,13 +17,11 @@ class AppTheme {
         primary: AppColors.primaryStart,
         secondary: AppColors.primaryEnd,
         surface: AppColors.cardBackground,
-        background: AppColors.backgroundLight,
         error: AppColors.error,
         outline: AppColors.borderLight,
         onPrimary: AppColors.white,
         onSecondary: AppColors.white,
         onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
         onError: AppColors.white,
       ),
 
@@ -192,13 +190,13 @@ class AppTheme {
 
       // CHECKBOX THEME
       checkboxTheme: CheckboxThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryStart;
           }
           return Colors.transparent;
         }),
-        checkColor: MaterialStateProperty.all(AppColors.white),
+        checkColor: WidgetStateProperty.all(AppColors.white),
         side: const BorderSide(color: AppColors.borderLight),
         shape: RoundedRectangleBorder(
           borderRadius: AppDimensions.radiusSmallBorderRadius,
@@ -207,8 +205,8 @@ class AppTheme {
 
       // RADIO THEME
       radioTheme: RadioThemeData(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryStart;
           }
           return AppColors.borderLight;
@@ -217,15 +215,15 @@ class AppTheme {
 
       // SWITCH THEME
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryStart;
           }
           return AppColors.textTertiary;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return AppColors.primaryStart.withOpacity(0.5);
+        trackColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
+            return AppColors.primaryStart.withAlpha(128);
           }
           return AppColors.borderLight;
         }),

@@ -28,7 +28,7 @@ class EmployeeCard extends StatelessWidget {
           border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(13),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

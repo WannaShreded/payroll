@@ -7,10 +7,10 @@ import '../widgets/menu_grid_item.dart';
 import 'employee_page.dart';
 import 'payroll_page.dart';
 import 'attendance_page.dart';
-import 'report_page.dart';
-import 'profile_page.dart';
+// profile_page import removed (handled via AppShell navigation)
 import '../services/employee_service.dart';
 import '../services/payroll_service.dart';
+import '../widgets/app_shell.dart';
 
 class DashboardPage extends StatefulWidget {
   final UserModel user;
@@ -21,21 +21,59 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
+class _DummySearchDelegate extends SearchDelegate<String> {
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [IconButton(icon: const Icon(Icons.clear), onPressed: () => query = '')];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => close(context, ''));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return Center(child: Text('Hasil pencarian: $query'));
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return ListView(
+      children: [
+        ListTile(title: Text('Cari: $query')),
+      ],
+    );
+  }
+}
+
 class _DashboardPageState extends State<DashboardPage> {
     Future<Map<String, dynamic>> _fetchDashboardStats() async {
       // Get total employees
       final employees = await EmployeeService.getAllEmployees();
       final totalEmployees = employees.length;
 
-      // Get payroll data for current month
+      // Get payroll data for current month: sum payroll per employee to avoid duplicates
       final now = DateTime.now();
-      final payrollRecords = await PayrollService.getAllPayroll();
-      final currentMonthPayroll = payrollRecords.where((p) =>
-          p.month == now.month && p.year == now.year);
-      final totalSalary = currentMonthPayroll.fold<double>(
-          0, (sum, payroll) => sum + payroll.totalNetSalary);
+      double totalSalary = 0.0;
 
-      String formattedSalary = _formatCurrency(totalSalary);
+      for (final emp in employees) {
+        try {
+          final payroll = await PayrollService.getPayrollByMonth(emp.id, now.month, now.year);
+          if (payroll != null) {
+            totalSalary += payroll.totalNetSalary.toDouble();
+          } else {
+            // fallback: use estimated salary for this employee
+            totalSalary += emp.getEstimatedSalary().toDouble();
+          }
+        } catch (e) {
+          // ignore: avoid_print
+          print('Error fetching payroll for ${emp.id}: $e');
+          totalSalary += emp.getEstimatedSalary().toDouble();
+        }
+      }
+
+      final String formattedSalary = _formatCurrency(totalSalary);
 
       return {
         'totalEmployees': totalEmployees,
@@ -44,34 +82,30 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     String _formatCurrency(double amount) {
-      final formatter = amount.toStringAsFixed(0);
-      final parts = formatter.split('');
-      final result = <String>[];
-      for (int i = parts.length - 1; i >= 0; i--) {
-        if (result.length > 0 && result.length % 3 == 0) {
-          result.insert(0, '.');
-        }
-        result.insert(0, parts[i]);
+      final s = amount.round().toString();
+      final buffer = StringBuffer();
+      int count = 0;
+      for (int i = s.length - 1; i >= 0; i--) {
+        buffer.write(s[i]);
+        count++;
+        if (count % 3 == 0 && i != 0) buffer.write('.');
       }
-      return 'Rp ${result.join()}';
+      final formattedReversed = buffer.toString();
+      final formatted = formattedReversed.split('').reversed.join('');
+      return 'Rp $formatted';
     }
-  int _selectedIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    // Don't build pages here - build them in build() method
   }
 
-  // Lazy build pages to avoid context-dependent operations in initState
-  List<Widget> _buildPages() {
-    return [
-      _buildHomePage(),
-      EmployeePage(user: widget.user),
-      PayrollPage(user: widget.user),
-      ProfilePage(user: widget.user),
-    ];
+  @override
+  void dispose() {
+    super.dispose();
   }
+  
+
+
 
   Widget _buildHomePage() {
     final hour = DateTime.now().hour;
@@ -81,9 +115,9 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with greeting and user info
+          // Header with modern welcome card
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -94,93 +128,70 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Greeting and Notification
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          greeting,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.white70,
-                                  ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.user.fullName,
-                          style:
-                              Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.notifications_outlined,
-                            color: AppColors.white,
-                            size: 28,
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.error,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            constraints: const BoxConstraints(
-                              minWidth: 20,
-                              minHeight: 20,
-                            ),
-                            child: const Text(
-                              '3',
-                              style: TextStyle(
-                                color: AppColors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ],
+            child: SafeArea(
+              bottom: false,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                // Role Badge
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                  ),
-                  child: Text(
-                    widget.user.role,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.white,
-                          fontWeight: FontWeight.bold,
+                child: Row(
+                  children: [
+                    // Avatar with shadow
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8, offset: const Offset(0, 4)),
+                        ],
+                        shape: BoxShape.circle,
+                      ),
+                      child: CircleAvatar(
+                        radius: 34,
+                        backgroundColor: AppColors.blue,
+                        child: Text(
+                          widget.user.fullName.isNotEmpty
+                              ? widget.user.fullName.split(' ').map((s) => s.isNotEmpty ? s[0] : '').take(2).join()
+                              : '?',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
                         ),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    // Name + small stats chips
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(greeting, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                          const SizedBox(height: 6),
+                          Text(widget.user.fullName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                                child: Text(widget.user.role, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold)),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(DateTime.now().toLocal().toString().split(' ')[0], style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           // Content
@@ -249,34 +260,31 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                 ),
                 const SizedBox(height: 16),
-                // Menu Grid
-                GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
+                // Quick actions stacked vertically as three rows
+                Column(
                   children: [
                     MenuGridItem(
                       title: AppText.employeeData,
                       icon: Icons.people_outline,
                       iconBgColor: AppColors.blue,
                       onTap: () {
-                        setState(() {
-                          _selectedIndex = 1;
-                        });
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => EmployeePage(user: widget.user)),
+                        );
                       },
                     ),
+                    const SizedBox(height: 12),
                     MenuGridItem(
                       title: AppText.payroll,
                       icon: Icons.attach_money,
                       iconBgColor: AppColors.success,
                       onTap: () {
-                        setState(() {
-                          _selectedIndex = 2;
-                        });
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => PayrollPage(user: widget.user)),
+                        );
                       },
                     ),
+                    const SizedBox(height: 12),
                     MenuGridItem(
                       title: AppText.attendance,
                       icon: Icons.check_circle_outline,
@@ -284,19 +292,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => AttendancePage(),
-                          ),
-                        );
-                      },
-                    ),
-                    MenuGridItem(
-                      title: AppText.reports,
-                      icon: Icons.bar_chart,
-                      iconBgColor: AppColors.red,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ReportPage(),
+                            builder: (_) => AttendancePage(user: widget.user),
                           ),
                         );
                       },
@@ -311,48 +307,13 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  void _onNavItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    final pages = _buildPages(); // Build pages lazily in build method
-    
-    return Scaffold(
-      body: pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.white,
-        selectedItemColor: AppColors.primaryGradientStart,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: AppText.home,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people_outline),
-            activeIcon: Icon(Icons.people),
-            label: AppText.employees,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.attach_money),
-            activeIcon: Icon(Icons.attach_money),
-            label: AppText.salary,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: AppText.profile,
-          ),
-        ],
-      ),
+    return AppShell(
+      user: widget.user,
+      currentIndex: 0,
+      appBar: null,
+      body: _buildHomePage(),
     );
   }
 }

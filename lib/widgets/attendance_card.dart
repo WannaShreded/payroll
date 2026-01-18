@@ -17,8 +17,6 @@ class AttendanceCard extends StatelessWidget {
     switch (attendance.status) {
       case 'hadir':
         return Colors.green.shade400;
-      case 'terlambat':
-        return Colors.orange.shade400;
       case 'tidak_hadir':
         return Colors.red.shade400;
       default:
@@ -30,8 +28,6 @@ class AttendanceCard extends StatelessWidget {
     switch (attendance.status) {
       case 'hadir':
         return Colors.green.shade50;
-      case 'terlambat':
-        return Colors.orange.shade50;
       case 'tidak_hadir':
         return Colors.red.shade50;
       default:
@@ -41,6 +37,33 @@ class AttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int? _computeMinutesFromTimes() {
+      final entry = attendance.entryTime;
+      final exit = attendance.exitTime;
+      if (entry == null || exit == null) return null;
+      final entryMinutes = entry.hour * 60 + entry.minute;
+      final exitMinutes = exit.hour * 60 + exit.minute;
+      if (exitMinutes <= entryMinutes) return null;
+      return exitMinutes - entryMinutes;
+    }
+
+    String _formatHoursDisplay() {
+      final minutes = _computeMinutesFromTimes();
+      if (minutes != null) {
+        final h = minutes ~/ 60;
+        final m = minutes % 60;
+        if (m == 0) return '$h jam';
+        return '$h jam ${m} menit';
+      }
+
+      // fallback to stored hoursWorked (decimal hours)
+      final hw = attendance.hoursWorked;
+      if (hw <= 0) return '-';
+      final whole = hw.truncate();
+      final frac = ((hw - whole) * 60).round();
+      if (frac == 0) return '$whole jam';
+      return '$whole jam ${frac} menit';
+    }
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -183,7 +206,7 @@ class AttendanceCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${attendance.hoursWorked.toStringAsFixed(1)} jam',
+                    _formatHoursDisplay(),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

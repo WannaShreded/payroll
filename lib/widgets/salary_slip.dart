@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart' as pdf;
+import 'package:printing/printing.dart';
 import '../models/payroll_model.dart';
 import '../models/employee_model.dart';
 import '../models/position_model.dart';
@@ -164,7 +167,7 @@ class SalarySlip extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.success.withOpacity(0.1),
+                    color: AppColors.success.withAlpha(26),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -194,7 +197,7 @@ class SalarySlip extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
+              color: Colors.blue.withAlpha(26),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: Colors.blue),
             ),
@@ -220,40 +223,87 @@ class SalarySlip extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          // Action Buttons
+          // Action Button: Unduh PDF (share)
           Row(
             children: [
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Fitur Unduh PDF - Coming Soon'),
+                  onPressed: () async {
+                    final doc = pw.Document();
+
+                    doc.addPage(
+                      pw.MultiPage(
+                        build: (context) => [
+                          pw.Container(
+                            padding: const pw.EdgeInsets.all(12),
+                            color: pdf.PdfColors.blue800,
+                            child: pw.Column(
+                              crossAxisAlignment: pw.CrossAxisAlignment.start,
+                              children: [
+                                pw.Text('SLIP GAJI',
+                                    style: pw.TextStyle(
+                                      color: pdf.PdfColors.white,
+                                      fontSize: 20,
+                                      fontWeight: pw.FontWeight.bold,
+                                    )),
+                                pw.SizedBox(height: 6),
+                                pw.Text('Periode: $period',
+                                    style: pw.TextStyle(
+                                      color: pdf.PdfColors.white,
+                                    )),
+                              ],
+                            ),
+                          ),
+                          pw.SizedBox(height: 12),
+                          pw.Text('Informasi Karyawan', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(height: 8),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Nama'), pw.Text(employee.fullName)
+                          ]),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('NIK'), pw.Text(employee.nik ?? '-')
+                          ]),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Jabatan'), pw.Text(employee.position)
+                          ]),
+                          pw.SizedBox(height: 12),
+                          pw.Text('Ringkasan Kehadiran Bulan Ini', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(height: 8),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Total Hari Hadir'), pw.Text('${payroll.totalDaysPresent} Hari')
+                          ]),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Total Jam Kerja'), pw.Text('${payroll.totalHoursWorked.toStringAsFixed(1)} Jam')
+                          ]),
+                          pw.SizedBox(height: 12),
+                          pw.Text('Breakdown Gaji', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+                          pw.SizedBox(height: 8),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Gaji (Upah × Jam Kerja)'), pw.Text('Rp ${PositionList.formatCurrency(payroll.baseSalary)}')
+                          ]),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Tunjangan Transport'), pw.Text('Rp ${PositionList.formatCurrency(payroll.transportAllowance)}')
+                          ]),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Tunjangan Makan'), pw.Text('Rp ${PositionList.formatCurrency(payroll.mealAllowance)}')
+                          ]),
+                          pw.SizedBox(height: 12),
+                          pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [
+                            pw.Text('Total Gaji Bersih', style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                            pw.Text('Rp ${PositionList.formatCurrency(payroll.totalNetSalary)}', style: pw.TextStyle(fontWeight: pw.FontWeight.bold))
+                          ]),
+                        ],
                       ),
                     );
+
+                    final bytes = await doc.save();
+                    final filename = 'slip_gaji_${employee.nik ?? 'unknown'}_${payroll.month}_${payroll.year}.pdf';
+                    await Printing.sharePdf(bytes: bytes, filename: filename);
                   },
                   icon: const Icon(Icons.download),
                   label: const Text('Unduh PDF'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryGradientStart,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Fitur Cetak - Coming Soon'),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.print),
-                  label: const Text('Cetak'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),

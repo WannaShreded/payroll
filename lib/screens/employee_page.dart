@@ -4,6 +4,7 @@ import '../models/employee_model.dart';
 import '../utils/constants.dart';
 import '../services/employee_service.dart';
 import '../widgets/employee_card.dart';
+import '../widgets/app_shell.dart';
 import 'employee_form_page.dart';
 import 'employee_detail_page.dart';
 
@@ -67,7 +68,17 @@ class _EmployeePageState extends State<EmployeePage> {
 
   void _viewEmployee(EmployeeModel employee) async {
     final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => EmployeeDetailPage(employee: employee)),
+      MaterialPageRoute(
+        builder: (_) => AppShell(
+          user: widget.user,
+          currentIndex: 1,
+          appBar: AppBar(
+            title: const Text('Detail Karyawan'),
+            backgroundColor: AppColors.primaryGradientStart,
+          ),
+          body: EmployeeDetailPage(employee: employee),
+        ),
+      ),
     );
     if (result == true) {
       _loadEmployees();
@@ -76,7 +87,9 @@ class _EmployeePageState extends State<EmployeePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppShell(
+      user: widget.user,
+      currentIndex: 1,
       appBar: AppBar(
         title: const Text('Data Karyawan'),
         backgroundColor: AppColors.primaryGradientStart,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 
 class AttendanceModel {
   final String id;
@@ -6,7 +7,7 @@ class AttendanceModel {
   final int day; // 1-31
   final int month; // 1-12
   final int year;
-  final String status; // 'hadir', 'terlambat', 'tidak_hadir'
+  final String status; // 'hadir', 'tidak_hadir' (legacy 'terlambat' treated as 'hadir')
   final TimeOfDay? entryTime; // Jam masuk (HH:MM)
   final TimeOfDay? exitTime; // Jam pulang (HH:MM)
   final double hoursWorked; // actual hours worked
@@ -44,29 +45,79 @@ class AttendanceModel {
   }
 
   factory AttendanceModel.fromJson(Map<String, dynamic> json) {
-    TimeOfDay? parseTime(String? timeStr) {
-      if (timeStr == null) return null;
-      final parts = timeStr.split(':');
-      if (parts.length == 2) {
-        return TimeOfDay(
-          hour: int.parse(parts[0]),
-          minute: int.parse(parts[1]),
-        );
+    TimeOfDay? parseTime(dynamic timeVal) {
+      if (timeVal == null) return null;
+      try {
+        // String like '08:30' or '8:30'
+        if (timeVal is String) {
+          final parts = timeVal.split(':');
+          if (parts.length >= 2) {
+            final h = int.tryParse(parts[0].trim());
+            final m = int.tryParse(parts[1].trim());
+            if (h != null && m != null) return TimeOfDay(hour: h, minute: m);
+          }
+        }
+
+        // Firestore Timestamp
+        if (timeVal is Timestamp) {
+          final dt = timeVal.toDate();
+          return TimeOfDay(hour: dt.hour, minute: dt.minute);
+        }
+
+        // Numeric epoch milliseconds
+        if (timeVal is int) {
+          final dt = DateTime.fromMillisecondsSinceEpoch(timeVal);
+          return TimeOfDay(hour: dt.hour, minute: dt.minute);
+        }
+
+        // List like [hour, minute]
+        if (timeVal is List && timeVal.length >= 2) {
+          final h = int.tryParse(timeVal[0].toString());
+          final m = int.tryParse(timeVal[1].toString());
+          if (h != null && m != null) return TimeOfDay(hour: h, minute: m);
+        }
+
+        // Map like {'hour':8,'minute':30} or {'h':8,'m':30}
+        if (timeVal is Map) {
+          final dynamic hh = timeVal['hour'] ?? timeVal['h'] ?? timeVal['hours'] ?? timeVal['0'];
+          final dynamic mm = timeVal['minute'] ?? timeVal['m'] ?? timeVal['minutes'] ?? timeVal['1'];
+          final h = int.tryParse(hh?.toString() ?? '');
+          final m = int.tryParse(mm?.toString() ?? '');
+          if (h != null && m != null) return TimeOfDay(hour: h, minute: m);
+        }
+      } catch (_) {
+        // ignore and return null
       }
       return null;
+    }
+
+    double parseDouble(dynamic v) {
+      if (v == null) return 0.0;
+      if (v is double) return v;
+      if (v is int) return v.toDouble();
+      if (v is String) return double.tryParse(v) ?? 0.0;
+      return 0.0;
+    }
+
+    bool parseBool(dynamic v) {
+      if (v == null) return false;
+      if (v is bool) return v;
+      if (v is int) return v != 0;
+      if (v is String) return v.toLowerCase() == 'true' || v == '1';
+      return false;
     }
 
     return AttendanceModel(
       id: json['id'] ?? '',
       employeeId: json['employeeId'] ?? '',
-      day: json['day'] ?? 0,
-      month: json['month'] ?? 0,
-      year: json['year'] ?? 0,
+      day: (json['day'] is int) ? json['day'] : int.tryParse(json['day']?.toString() ?? '') ?? 0,
+      month: (json['month'] is int) ? json['month'] : int.tryParse(json['month']?.toString() ?? '') ?? 0,
+      year: (json['year'] is int) ? json['year'] : int.tryParse(json['year']?.toString() ?? '') ?? 0,
       status: json['status'] ?? 'tidak_hadir',
       entryTime: parseTime(json['entryTime']),
       exitTime: parseTime(json['exitTime']),
-      hoursWorked: (json['hoursWorked'] ?? 0).toDouble(),
-      isPresent: json['isPresent'] ?? false,
+      hoursWorked: parseDouble(json['hoursWorked']),
+      isPresent: parseBool(json['isPresent']),
       notes: json['notes'],
     );
   }
@@ -102,13 +153,13 @@ class AttendanceModel {
   String getStatusDisplay() {
     switch (status) {
       case 'hadir':
-        return 'Hadir';
       case 'terlambat':
-        return 'Terlambat';
+        // treat legacy 'terlambat' as hadir for display purposes
+        return 'Hadir';
       case 'tidak_hadir':
         return 'Tidak Hadir';
       default:
-        return 'Tidak Diketahui';
+        return 'Hadir';
     }
   }
 

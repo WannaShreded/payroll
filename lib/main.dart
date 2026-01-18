@@ -6,6 +6,7 @@ import 'firebase_options.dart';
 import 'screens/login_page.dart';
 import 'screens/dashboard_page.dart';
 import 'services/session_service.dart';
+import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
 
 
@@ -58,10 +59,15 @@ class _InitialRoutePageState extends State<InitialRoutePage> {
   }
 
   Future<Widget> _determineInitialRoute() async {
-    // Check if user has active session
+    // Check if user has active session AND 'remember me' preference
     final user = await SessionService.getUserSession();
-    if (user != null) {
+    final rememberMe = await SessionService.getRememberMe();
+    if (user != null && rememberMe) {
       return DashboardPage(user: user);
+    }
+    // If user is signed in but didn't choose remember-me, sign out to end session
+    if (user != null && !rememberMe) {
+      await AuthService.logoutUser();
     }
     return const LoginPage();
   }

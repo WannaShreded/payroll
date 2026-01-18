@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/employee_model.dart';
+import '../models/user_model.dart';
 import '../models/attendance_model.dart';
 import '../services/employee_service.dart';
 import '../services/attendance_service.dart';
 import 'attendance_detail_page.dart';
+import '../widgets/app_shell.dart';
 
 class AttendancePage extends StatefulWidget {
-  const AttendancePage({Key? key}) : super(key: key);
+  final UserModel user;
+
+  const AttendancePage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<AttendancePage> createState() => _AttendancePageState();
@@ -14,10 +18,10 @@ class AttendancePage extends StatefulWidget {
 
 class _AttendancePageState extends State<AttendancePage> {
   List<EmployeeModel> employees = [];
-  Map<String, AttendanceSummary> attendanceStats = {};
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
   bool isLoading = true;
+  Stream<Map<String, AttendanceSummary>>? _statsStream;
 
   @override
   void initState() {
@@ -37,7 +41,12 @@ class _AttendancePageState extends State<AttendancePage> {
       }
 
       // Get attendance stats
-      await _loadAttendanceStats();
+      _statsStream = AttendanceService.streamMonthlyAttendanceStats(
+        employees.map((e) => e.id).toList(),
+        selectedMonth,
+        selectedYear,
+        8, // standard hours per day
+      );
     } catch (e) {
       print('Error initializing: $e');
     } finally {
@@ -45,48 +54,38 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  Future<void> _loadAttendanceStats() async {
-    try {
-      final employeeIds = employees.map((e) => e.id).toList();
-      final stats = await AttendanceService.getMonthlyAttendanceStats(
-        employeeIds,
-        selectedMonth,
-        selectedYear,
-        8, // standard hours per day
-      );
-
-      setState(() {
-        attendanceStats = stats;
-      });
-    } catch (e) {
-      print('Error loading stats: $e');
-    }
-  }
-
-  int get totalPresent => attendanceStats.values
-      .fold<int>(0, (sum, stat) => sum + stat.totalDaysPresent);
-
-  int get totalAbsent => attendanceStats.values
-      .fold<int>(0, (sum, stat) => sum + stat.totalDaysAbsent);
+  // totals will be computed from the realtime stats stream in the UI
 
   void _onMonthChanged(int month, int year) {
     setState(() {
       selectedMonth = month;
       selectedYear = year;
     });
-    _loadAttendanceStats();
+    // recreate stream for new month/year
+    _statsStream = AttendanceService.streamMonthlyAttendanceStats(
+      employees.map((e) => e.id).toList(),
+      selectedMonth,
+      selectedYear,
+      8,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+    return AppShell(
+      user: widget.user,
+      currentIndex: 0,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF667eea),
+        elevation: 0,
+        title: const Text('Rekap Absensi'),
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  // Header with gradient
+                  // Header with card-style and month selector inside
                   Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -96,59 +95,58 @@ class _AttendancePageState extends State<AttendancePage> {
                       ),
                     ),
                     padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Rekap Absensi',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Bulan ${_getMonthName(selectedMonth)} $selectedYear',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Month selector
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+                            color: Colors.black.withAlpha(20),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
                           ),
                         ],
                       ),
+                      padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
                           Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: InkWell(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Rekap Absensi',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).textTheme.titleLarge?.color,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Bulan ${_getMonthName(selectedMonth)} $selectedYear',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              InkWell(
                                 onTap: () => _showMonthPicker(),
                                 child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.calendar_today,
-                                        color: Color(0xFF667eea), size: 18),
-                                    const SizedBox(width: 8),
+                                    const Icon(Icons.calendar_today, color: Color(0xFF667eea), size: 18),
+                                    const SizedBox(width: 6),
                                     Text(
                                       '${_getMonthName(selectedMonth)} $selectedYear',
                                       style: const TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF667eea),
                                       ),
@@ -156,20 +154,12 @@ class _AttendancePageState extends State<AttendancePage> {
                                   ],
                                 ),
                               ),
-                            ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 30,
-                            color: Colors.grey.shade200,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: InkWell(
-                              onTap: _initializeData,
-                              child: const Icon(Icons.refresh,
-                                  color: Color(0xFF667eea), size: 20),
-                            ),
+                              const SizedBox(height: 6),
+                              InkWell(
+                                onTap: _initializeData,
+                                child: const Icon(Icons.refresh, color: Color(0xFF667eea), size: 20),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -180,7 +170,7 @@ class _AttendancePageState extends State<AttendancePage> {
                     padding: const EdgeInsets.all(16),
                     child: Row(
                       children: [
-                        // Total present card
+                        // Total present card (realtime)
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(16),
@@ -203,20 +193,28 @@ class _AttendancePageState extends State<AttendancePage> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  '$totalPresent hari',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green.shade700,
-                                  ),
+                                StreamBuilder<Map<String, AttendanceSummary>>(
+                                  stream: _statsStream,
+                                  builder: (context, snap) {
+                                    final map = snap.data ?? {};
+                                    final totalPresent = map.values
+                                        .fold<int>(0, (s, v) => s + v.totalDaysPresent);
+                                    return Text(
+                                      '$totalPresent hari',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade700,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Total absent card
+                        // Total absent card (realtime)
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(16),
@@ -239,13 +237,21 @@ class _AttendancePageState extends State<AttendancePage> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  '$totalAbsent hari',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red.shade700,
-                                  ),
+                                StreamBuilder<Map<String, AttendanceSummary>>(
+                                  stream: _statsStream,
+                                  builder: (context, snap) {
+                                    final map = snap.data ?? {};
+                                    final totalAbsent = map.values
+                                        .fold<int>(0, (s, v) => s + v.totalDaysAbsent);
+                                    return Text(
+                                      '$totalAbsent hari',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red.shade700,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -260,18 +266,24 @@ class _AttendancePageState extends State<AttendancePage> {
                     child: Column(
                       children: [
                         ...employees.map((emp) {
-                          final stat = attendanceStats[emp.id];
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      AttendanceDetailPage(
-                                    employee: emp,
-                                    month: selectedMonth,
-                                    year: selectedYear,
-                                  ),
+                                  builder: (context) => AppShell(
+                                        user: widget.user,
+                                        currentIndex: 0,
+                                        appBar: AppBar(
+                                          title: const Text('Detail Absensi'),
+                                          backgroundColor: const Color(0xFF667eea),
+                                        ),
+                                        body: AttendanceDetailPage(
+                                          employee: emp,
+                                          month: selectedMonth,
+                                          year: selectedYear,
+                                        ),
+                                      ),
                                 ),
                               );
                             },
@@ -310,26 +322,35 @@ class _AttendancePageState extends State<AttendancePage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildStatItem(
-                                        'Hadir',
-                                        '${stat?.totalDaysPresent ?? 0}',
-                                        Colors.green,
-                                      ),
-                                      _buildStatItem(
-                                        'Terlambat',
-                                        '${stat?.totalDaysLate ?? 0}',
-                                        Colors.orange,
-                                      ),
-                                      _buildStatItem(
-                                        'Tidak Hadir',
-                                        '${stat?.totalDaysAbsent ?? 0}',
-                                        Colors.red,
-                                      ),
-                                      _buildStatItem(
-                                        'Persentase',
-                                        '${(stat?.attendancePercentage ?? 0).toStringAsFixed(0)}%',
-                                        Colors.blue,
-                                      ),
+                                          StreamBuilder<Map<String, AttendanceSummary>>(
+                                            stream: _statsStream,
+                                            builder: (context, snap) {
+                                              final m = snap.data ?? {};
+                                              final s = m[emp.id];
+                                              return Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  _buildStatItem(
+                                                    'Hadir',
+                                                    '${s?.totalDaysPresent ?? 0}',
+                                                    Colors.green,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  _buildStatItem(
+                                                    'Tidak Hadir',
+                                                    '${s?.totalDaysAbsent ?? 0}',
+                                                    Colors.red,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  _buildStatItem(
+                                                    'Persentase',
+                                                    '${(s?.attendancePercentage ?? 0).toStringAsFixed(0)}%',
+                                                    Colors.blue,
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
                                     ],
                                   ),
                                 ],

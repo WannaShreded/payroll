@@ -172,7 +172,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               const SizedBox(height: 16),
               // Position
               DropdownButtonFormField<String>(
-                value: _selectedPosition,
+                initialValue: _selectedPosition,
                 decoration: InputDecoration(
                   labelText: 'Jabatan',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -206,7 +206,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryGradientStart.withOpacity(0.1),
+                    color: AppColors.primaryGradientStart.withAlpha(26),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: AppColors.primaryGradientStart),
                   ),
@@ -374,7 +374,7 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withAlpha(26),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.blue),
                 ),
