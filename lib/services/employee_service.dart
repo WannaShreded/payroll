@@ -10,7 +10,11 @@ class EmployeeService {
     try {
       final snap = await _col.get();
       return snap.docs
-          .map((d) => EmployeeModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .map(
+            (d) => EmployeeModel.fromJson(
+              Map<String, dynamic>.from(d.data() as Map),
+            ),
+          )
           .toList();
     } catch (e) {
       // ignore: avoid_print
@@ -63,7 +67,9 @@ class EmployeeService {
     try {
       final doc = await _col.doc(id).get();
       if (!doc.exists) return null;
-      return EmployeeModel.fromJson(Map<String, dynamic>.from(doc.data() as Map));
+      return EmployeeModel.fromJson(
+        Map<String, dynamic>.from(doc.data() as Map),
+      );
     } catch (e) {
       // ignore: avoid_print
       print('Error getting employee from Firestore: $e');

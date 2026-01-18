@@ -58,9 +58,9 @@ class _EmployeePageState extends State<EmployeePage> {
   }
 
   void _addEmployee() async {
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const EmployeeFormPage()),
-    );
+    final result = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const EmployeeFormPage()));
     if (result == true) {
       _loadEmployees();
     }
@@ -120,18 +120,18 @@ class _EmployeePageState extends State<EmployeePage> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _filteredEmployees.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _filteredEmployees.length,
-                        itemBuilder: (context, index) {
-                          final employee = _filteredEmployees[index];
-                          return EmployeeCard(
-                            employee: employee,
-                            onTap: () => _viewEmployee(employee),
-                          );
-                        },
-                      ),
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _filteredEmployees.length,
+                    itemBuilder: (context, index) {
+                      final employee = _filteredEmployees[index];
+                      return EmployeeCard(
+                        employee: employee,
+                        onTap: () => _viewEmployee(employee),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -148,27 +148,23 @@ class _EmployeePageState extends State<EmployeePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.people_outline,
-            size: 80,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.people_outline, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             _searchController.text.isEmpty
                 ? 'Belum ada karyawan'
                 : 'Karyawan tidak ditemukan',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           if (_searchController.text.isEmpty)
             Text(
               'Tap + untuk menambah karyawan',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
             ),
         ],
       ),

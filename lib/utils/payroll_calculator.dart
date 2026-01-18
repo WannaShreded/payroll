@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/employee_model.dart';
 import '../models/attendance_model.dart';
 
-double calculateWorkHoursFromTimeOfDay(TimeOfDay? checkIn, TimeOfDay? checkOut) {
+double calculateWorkHoursFromTimeOfDay(
+  TimeOfDay? checkIn,
+  TimeOfDay? checkOut,
+) {
   if (checkIn == null || checkOut == null) return 0;
 
   final inMinutes = checkIn.hour * 60 + checkIn.minute;

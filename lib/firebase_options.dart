@@ -68,5 +68,4 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://payroll-7c0fd-default-rtdb.firebaseio.com',
     storageBucket: 'payroll-7c0fd.firebasestorage.app',
   );
-
 }

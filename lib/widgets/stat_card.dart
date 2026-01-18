@@ -39,26 +39,22 @@ class StatCard extends StatelessWidget {
               color: bgColor.withAlpha(26),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: bgColor,
-              size: 24,
-            ),
+            child: Icon(icon, color: bgColor, size: 24),
           ),
           const SizedBox(height: 12),
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w500,
-                ),
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

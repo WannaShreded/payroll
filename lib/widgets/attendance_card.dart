@@ -64,6 +64,7 @@ class AttendanceCard extends StatelessWidget {
       if (frac == 0) return '$whole jam';
       return '$whole jam ${frac} menit';
     }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -85,10 +86,7 @@ class AttendanceCard extends StatelessWidget {
                   children: [
                     Text(
                       'Hari ke-${attendance.day}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -158,11 +156,7 @@ class AttendanceCard extends StatelessWidget {
                     ),
                   ),
                   // Divider
-                  Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.grey.shade200,
-                  ),
+                  Container(width: 1, height: 40, color: Colors.grey.shade200),
                   // Exit time
                   Expanded(
                     child: Column(
@@ -199,10 +193,7 @@ class AttendanceCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Jam Kerja:',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -229,10 +220,7 @@ class AttendanceCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   const Text(
                     'Tidak ada data jam kerja',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.red),
                   ),
                 ],
               ),
@@ -245,11 +233,7 @@ class AttendanceCard extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.note,
-                    color: Colors.grey.shade600,
-                    size: 18,
-                  ),
+                  Icon(Icons.note, color: Colors.grey.shade600, size: 18),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

@@ -55,7 +55,9 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
       }
 
       final standardHours = widget.employee.standardHoursPerDay * 22;
-      final attendancePercentage = records.isEmpty ? 0.0 : (totalDays / records.length) * 100;
+      final attendancePercentage = records.isEmpty
+          ? 0.0
+          : (totalDays / records.length) * 100;
 
       return AttendanceSummary(
         totalDaysPresent: totalDays,
@@ -196,7 +198,9 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.titleLarge?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.titleLarge?.color,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -204,7 +208,9 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                             widget.employee.position,
                             style: TextStyle(
                               fontSize: 13,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -212,7 +218,9 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                             'Bulan ${_getMonthName(widget.month)} ${widget.year}',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                             ),
                           ),
                         ],
@@ -240,14 +248,16 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                   );
                 }
 
-                final summary = snapshot.data ?? AttendanceSummary(
-                  totalDaysPresent: 0,
-                  totalDaysAbsent: 0,
-                  totalDaysLate: 0,
-                  totalHoursWorked: 0,
-                  standardHours: widget.employee.standardHoursPerDay * 22.0,
-                  attendancePercentage: 0,
-                );
+                final summary =
+                    snapshot.data ??
+                    AttendanceSummary(
+                      totalDaysPresent: 0,
+                      totalDaysAbsent: 0,
+                      totalDaysLate: 0,
+                      totalHoursWorked: 0,
+                      standardHours: widget.employee.standardHoursPerDay * 22.0,
+                      attendancePercentage: 0,
+                    );
 
                 return Padding(
                   padding: const EdgeInsets.all(16),
@@ -372,19 +382,15 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                 children: [
                   const Text(
                     'Riwayat Absensi',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   FloatingActionButton.small(
                     onPressed: () async {
                       final result = await Navigator.push<bool>(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AttendanceFormPage(
-                            employee: widget.employee,
-                          ),
+                          builder: (context) =>
+                              AttendanceFormPage(employee: widget.employee),
                         ),
                       );
                       if (result == true) {
@@ -428,9 +434,7 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                           const SizedBox(height: 12),
                           Text(
                             'Belum ada data absensi',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                            ),
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
                       ),
@@ -442,11 +446,13 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
                     children: records
-                        .map((attendance) => AttendanceCard(
-                              attendance: attendance,
-                              onEdit: () => _editAttendance(attendance),
-                              onDelete: () => _deleteAttendance(attendance),
-                            ))
+                        .map(
+                          (attendance) => AttendanceCard(
+                            attendance: attendance,
+                            onEdit: () => _editAttendance(attendance),
+                            onDelete: () => _deleteAttendance(attendance),
+                          ),
+                        )
                         .toList(),
                   ),
                 );

@@ -7,11 +7,8 @@ class AttendanceFormPage extends StatefulWidget {
   final EmployeeModel employee;
   final AttendanceModel? attendance;
 
-  const AttendanceFormPage({
-    Key? key,
-    required this.employee,
-    this.attendance,
-  }) : super(key: key);
+  const AttendanceFormPage({Key? key, required this.employee, this.attendance})
+    : super(key: key);
 
   @override
   State<AttendanceFormPage> createState() => _AttendanceFormPageState();
@@ -29,7 +26,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
   void initState() {
     super.initState();
     final now = DateTime.now();
-    
+
     if (widget.attendance != null) {
       // Edit mode
       selectedDate = DateTime(
@@ -67,9 +64,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF667eea),
-            ),
+            colorScheme: const ColorScheme.light(primary: Color(0xFF667eea)),
           ),
           child: child!,
         );
@@ -90,9 +85,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF667eea),
-            ),
+            colorScheme: const ColorScheme.light(primary: Color(0xFF667eea)),
           ),
           child: child!,
         );
@@ -113,16 +106,16 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
   bool _validateForm() {
     if (selectedStatus != 'tidak_hadir') {
       if (entryTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jam masuk harus diisi')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Jam masuk harus diisi')));
         return false;
       }
 
       if (exitTime == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jam pulang harus diisi')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Jam pulang harus diisi')));
         return false;
       }
 
@@ -151,7 +144,8 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
         : _calculateHoursWorked();
 
     final attendance = AttendanceModel(
-      id: widget.attendance?.id ??
+      id:
+          widget.attendance?.id ??
           '${widget.employee.id}_${selectedDate.month}_${selectedDate.year}_${selectedDate.day}',
       employeeId: widget.employee.id,
       day: selectedDate.day,
@@ -176,9 +170,11 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.attendance != null
-                ? 'Absensi berhasil diperbarui'
-                : 'Absensi berhasil ditambahkan'),
+            content: Text(
+              widget.attendance != null
+                  ? 'Absensi berhasil diperbarui'
+                  : 'Absensi berhasil ditambahkan',
+            ),
           ),
         );
         Navigator.pop(context, true);
@@ -250,7 +246,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(77),
+                      color: Colors.white.withAlpha(77),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -334,10 +330,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                       value: selectedStatus,
                       underline: const SizedBox(),
                       items: [
-                        DropdownMenuItem(
-                          value: 'hadir',
-                          child: Text('Hadir'),
-                        ),
+                        DropdownMenuItem(value: 'hadir', child: Text('Hadir')),
                         DropdownMenuItem(
                           value: 'tidak_hadir',
                           child: Text('Tidak Hadir'),
@@ -500,21 +493,24 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(context, true),
-                                      child: const Text('Hapus',
-                                          style: TextStyle(color: Colors.red)),
+                                      child: const Text(
+                                        'Hapus',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
                                     ),
                                   ],
                                 ),
                               );
 
                               if (confirmed == true) {
-                                final success = await AttendanceService
-                                    .deleteAttendance(widget.attendance!.id);
+                                final success =
+                                    await AttendanceService.deleteAttendance(
+                                      widget.attendance!.id,
+                                    );
                                 if (success && mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content:
-                                          Text('Absensi berhasil dihapus'),
+                                      content: Text('Absensi berhasil dihapus'),
                                     ),
                                   );
                                   Navigator.pop(context, true);
@@ -524,8 +520,10 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                             ),
-                            child: const Text('Hapus',
-                                style: TextStyle(color: Colors.white)),
+                            child: const Text(
+                              'Hapus',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
                       if (isEditMode) const SizedBox(width: 12),
@@ -535,8 +533,10 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF667eea),
                           ),
-                          child: const Text('Simpan',
-                              style: TextStyle(color: Colors.white)),
+                          child: const Text(
+                            'Simpan',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
                     ],

@@ -53,8 +53,7 @@ class Validators {
     return null;
   }
 
-  static String? validateConfirmPassword(
-      String? value, String passwordValue) {
+  static String? validateConfirmPassword(String? value, String passwordValue) {
     if (value == null || value.isEmpty) {
       return 'Konfirmasi password tidak boleh kosong';
     }

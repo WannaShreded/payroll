@@ -40,9 +40,9 @@ class AppShell extends StatelessWidget {
         target = ProfilePage(user: user);
         break;
     }
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => target),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => target));
   }
 
   @override

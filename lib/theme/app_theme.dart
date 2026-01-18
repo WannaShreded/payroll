@@ -222,7 +222,7 @@ class AppTheme {
           return AppColors.textTertiary;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.selected)) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.primaryStart.withAlpha(128);
           }
           return AppColors.borderLight;
@@ -243,9 +243,14 @@ class AppTheme {
         elevation: 8,
         selectedItemColor: AppColors.primaryStart,
         unselectedItemColor: AppColors.textSecondary,
-        selectedLabelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-        unselectedLabelStyle:
-            TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+        selectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+        ),
       ),
 
       // SNACKBAR THEME
@@ -304,9 +309,7 @@ class AppTheme {
           color: AppColors.textPrimary,
           borderRadius: AppDimensions.radiusSmallBorderRadius,
         ),
-        textStyle: AppTypography.captionSmall.copyWith(
-          color: AppColors.white,
-        ),
+        textStyle: AppTypography.captionSmall.copyWith(color: AppColors.white),
       ),
     );
   }
@@ -375,13 +378,10 @@ class AppTheme {
   }
 
   /// Gradient button decoration
-  static Decoration gradientButtonDecoration({
-    BorderRadius? borderRadius,
-  }) {
+  static Decoration gradientButtonDecoration({BorderRadius? borderRadius}) {
     return BoxDecoration(
       gradient: AppColors.primaryGradient,
-      borderRadius:
-          borderRadius ?? AppDimensions.radiusMediumBorderRadius,
+      borderRadius: borderRadius ?? AppDimensions.radiusMediumBorderRadius,
     );
   }
 

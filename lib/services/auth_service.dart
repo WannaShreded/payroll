@@ -89,11 +89,15 @@ class AuthService {
           password: password,
         );
         // ignore: avoid_print
-        print('signInWithEmailAndPassword returned type: ${userCred.runtimeType}');
+        print(
+          'signInWithEmailAndPassword returned type: ${userCred.runtimeType}',
+        );
         // ignore: avoid_print
         print('user runtimeType: ${userCred.user.runtimeType}');
         // ignore: avoid_print
-        print('providerData runtimeType: ${userCred.user?.providerData.runtimeType}');
+        print(
+          'providerData runtimeType: ${userCred.user?.providerData.runtimeType}',
+        );
       } catch (e, st) {
         // Detailed logging for platform/channel type errors
         // ignore: avoid_print
@@ -188,7 +192,10 @@ class AuthService {
     if (email == null) return false;
 
     try {
-      final cred = EmailAuthProvider.credential(email: email, password: oldPassword);
+      final cred = EmailAuthProvider.credential(
+        email: email,
+        password: oldPassword,
+      );
       await user.reauthenticateWithCredential(cred);
       await user.updatePassword(newPassword);
       return true;
@@ -203,4 +210,3 @@ class AuthService {
     }
   }
 }
-

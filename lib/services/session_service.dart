@@ -54,7 +54,10 @@ class SessionService {
       final firebaseUser = _auth.currentUser;
       if (firebaseUser == null) return null;
 
-      final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get();
       if (!doc.exists) return null;
       return UserModel.fromJson(Map<String, dynamic>.from(doc.data() as Map));
     } catch (e) {
@@ -96,7 +99,9 @@ class SessionService {
         email: session.email,
         phone: session.phone,
         role: session.role,
-        createdAt: session.createdAt != null ? DateTime.parse(session.createdAt!) : DateTime.now(),
+        createdAt: session.createdAt != null
+            ? DateTime.parse(session.createdAt!)
+            : DateTime.now(),
       );
       await saveUserSession(user);
       return true;

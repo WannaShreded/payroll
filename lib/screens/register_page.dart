@@ -68,13 +68,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
         // Redirect to login after success
         Future.delayed(
-            const Duration(seconds: AppConstants.redirectDelaySeconds), () {
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-            );
-          }
-        });
+          const Duration(seconds: AppConstants.redirectDelaySeconds),
+          () {
+            if (mounted) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            }
+          },
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -118,16 +120,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 Text(
                   AppText.createAccount,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppColors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   AppText.registerSubtitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.white70,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.white70),
                 ),
                 const SizedBox(height: 32),
                 // Form
@@ -189,7 +191,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                         validator: (value) =>
                             Validators.validateConfirmPassword(
-                                value, _passwordController.text),
+                              value,
+                              _passwordController.text,
+                            ),
                       ),
                       const SizedBox(height: 20),
                       // Terms & Conditions Checkbox
@@ -249,9 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
         hintText: hintText,
         prefixIcon: const Icon(Icons.lock),
         suffixIcon: IconButton(
-          icon: Icon(
-            isVisible ? Icons.visibility : Icons.visibility_off,
-          ),
+          icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off),
           onPressed: onVisibilityToggle,
         ),
         filled: true,
@@ -275,9 +277,9 @@ class _RegisterPageState extends State<RegisterPage> {
       },
       title: Text(
         AppText.agreeTerms,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.white,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.bodyMedium?.copyWith(color: AppColors.white),
       ),
       checkColor: AppColors.white,
       activeColor: Colors.white70,
@@ -313,10 +315,9 @@ class _RegisterPageState extends State<RegisterPage> {
               )
             : Text(
                 AppText.register,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.bold),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
       ),
     );
@@ -328,24 +329,22 @@ class _RegisterPageState extends State<RegisterPage> {
       children: [
         Text(
           AppText.alreadyHaveAccount,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.white70,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.white70),
         ),
         GestureDetector(
           onTap: () {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (_) => const LoginPage(),
-              ),
+              MaterialPageRoute(builder: (_) => const LoginPage()),
             );
           },
           child: Text(
             AppText.login,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              color: AppColors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

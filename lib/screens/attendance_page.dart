@@ -119,7 +119,9 @@ class _AttendancePageState extends State<AttendancePage> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).textTheme.titleLarge?.color,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge?.color,
                                   ),
                                 ),
                                 const SizedBox(height: 6),
@@ -127,7 +129,9 @@ class _AttendancePageState extends State<AttendancePage> {
                                   'Bulan ${_getMonthName(selectedMonth)} $selectedYear',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.color,
                                   ),
                                 ),
                               ],
@@ -141,7 +145,11 @@ class _AttendancePageState extends State<AttendancePage> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.calendar_today, color: Color(0xFF667eea), size: 18),
+                                    const Icon(
+                                      Icons.calendar_today,
+                                      color: Color(0xFF667eea),
+                                      size: 18,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       '${_getMonthName(selectedMonth)} $selectedYear',
@@ -157,7 +165,11 @@ class _AttendancePageState extends State<AttendancePage> {
                               const SizedBox(height: 6),
                               InkWell(
                                 onTap: _initializeData,
-                                child: const Icon(Icons.refresh, color: Color(0xFF667eea), size: 20),
+                                child: const Icon(
+                                  Icons.refresh,
+                                  color: Color(0xFF667eea),
+                                  size: 20,
+                                ),
                               ),
                             ],
                           ),
@@ -177,9 +189,7 @@ class _AttendancePageState extends State<AttendancePage> {
                             decoration: BoxDecoration(
                               color: Colors.green.shade50,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.green.shade200,
-                              ),
+                              border: Border.all(color: Colors.green.shade200),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,8 +207,10 @@ class _AttendancePageState extends State<AttendancePage> {
                                   stream: _statsStream,
                                   builder: (context, snap) {
                                     final map = snap.data ?? {};
-                                    final totalPresent = map.values
-                                        .fold<int>(0, (s, v) => s + v.totalDaysPresent);
+                                    final totalPresent = map.values.fold<int>(
+                                      0,
+                                      (s, v) => s + v.totalDaysPresent,
+                                    );
                                     return Text(
                                       '$totalPresent hari',
                                       style: TextStyle(
@@ -221,9 +233,7 @@ class _AttendancePageState extends State<AttendancePage> {
                             decoration: BoxDecoration(
                               color: Colors.red.shade50,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.red.shade200,
-                              ),
+                              border: Border.all(color: Colors.red.shade200),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,8 +251,10 @@ class _AttendancePageState extends State<AttendancePage> {
                                   stream: _statsStream,
                                   builder: (context, snap) {
                                     final map = snap.data ?? {};
-                                    final totalAbsent = map.values
-                                        .fold<int>(0, (s, v) => s + v.totalDaysAbsent);
+                                    final totalAbsent = map.values.fold<int>(
+                                      0,
+                                      (s, v) => s + v.totalDaysAbsent,
+                                    );
                                     return Text(
                                       '$totalAbsent hari',
                                       style: TextStyle(
@@ -272,18 +284,18 @@ class _AttendancePageState extends State<AttendancePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => AppShell(
-                                        user: widget.user,
-                                        currentIndex: 0,
-                                        appBar: AppBar(
-                                          title: const Text('Detail Absensi'),
-                                          backgroundColor: const Color(0xFF667eea),
-                                        ),
-                                        body: AttendanceDetailPage(
-                                          employee: emp,
-                                          month: selectedMonth,
-                                          year: selectedYear,
-                                        ),
-                                      ),
+                                    user: widget.user,
+                                    currentIndex: 0,
+                                    appBar: AppBar(
+                                      title: const Text('Detail Absensi'),
+                                      backgroundColor: const Color(0xFF667eea),
+                                    ),
+                                    body: AttendanceDetailPage(
+                                      employee: emp,
+                                      month: selectedMonth,
+                                      year: selectedYear,
+                                    ),
+                                  ),
                                 ),
                               );
                             },
@@ -293,9 +305,7 @@ class _AttendancePageState extends State<AttendancePage> {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                ),
+                                border: Border.all(color: Colors.grey.shade200),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,35 +332,37 @@ class _AttendancePageState extends State<AttendancePage> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                          StreamBuilder<Map<String, AttendanceSummary>>(
-                                            stream: _statsStream,
-                                            builder: (context, snap) {
-                                              final m = snap.data ?? {};
-                                              final s = m[emp.id];
-                                              return Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  _buildStatItem(
-                                                    'Hadir',
-                                                    '${s?.totalDaysPresent ?? 0}',
-                                                    Colors.green,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  _buildStatItem(
-                                                    'Tidak Hadir',
-                                                    '${s?.totalDaysAbsent ?? 0}',
-                                                    Colors.red,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  _buildStatItem(
-                                                    'Persentase',
-                                                    '${(s?.attendancePercentage ?? 0).toStringAsFixed(0)}%',
-                                                    Colors.blue,
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          ),
+                                      StreamBuilder<
+                                        Map<String, AttendanceSummary>
+                                      >(
+                                        stream: _statsStream,
+                                        builder: (context, snap) {
+                                          final m = snap.data ?? {};
+                                          final s = m[emp.id];
+                                          return Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              _buildStatItem(
+                                                'Hadir',
+                                                '${s?.totalDaysPresent ?? 0}',
+                                                Colors.green,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              _buildStatItem(
+                                                'Tidak Hadir',
+                                                '${s?.totalDaysAbsent ?? 0}',
+                                                Colors.red,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              _buildStatItem(
+                                                'Persentase',
+                                                '${(s?.attendancePercentage ?? 0).toStringAsFixed(0)}%',
+                                                Colors.blue,
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -382,10 +394,7 @@ class _AttendancePageState extends State<AttendancePage> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey.shade600,
-          ),
+          style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
         ),
       ],
     );
@@ -405,10 +414,12 @@ class _AttendancePageState extends State<AttendancePage> {
                 isExpanded: true,
                 value: selectedMonth,
                 items: List.generate(12, (i) => i + 1)
-                    .map((month) => DropdownMenuItem(
-                          value: month,
-                          child: Text(_getMonthName(month)),
-                        ))
+                    .map(
+                      (month) => DropdownMenuItem(
+                        value: month,
+                        child: Text(_getMonthName(month)),
+                      ),
+                    )
                     .toList(),
                 onChanged: (value) {
                   if (value != null) {
@@ -421,10 +432,12 @@ class _AttendancePageState extends State<AttendancePage> {
                 isExpanded: true,
                 value: selectedYear,
                 items: List.generate(5, (i) => DateTime.now().year - 2 + i)
-                    .map((year) => DropdownMenuItem(
-                          value: year,
-                          child: Text(year.toString()),
-                        ))
+                    .map(
+                      (year) => DropdownMenuItem(
+                        value: year,
+                        child: Text(year.toString()),
+                      ),
+                    )
                     .toList(),
                 onChanged: (value) {
                   if (value != null) {

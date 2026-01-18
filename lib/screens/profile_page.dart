@@ -48,8 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) => EditProfileDialog(
         user: _currentUser,
         onSave: (updatedUser) async {
-          final success =
-              await SessionService.updateUserSession(updatedUser);
+          final success = await SessionService.updateUserSession(updatedUser);
           if (success) {
             setState(() => _currentUser = updatedUser);
             if (mounted) {
@@ -81,7 +80,11 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Gagal mengubah password. Pastikan password lama benar.')),
+              const SnackBar(
+                content: Text(
+                  'Gagal mengubah password. Pastikan password lama benar.',
+                ),
+              ),
             );
           }
         },
@@ -152,7 +155,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).textTheme.titleLarge?.color,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge?.color,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -165,9 +170,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             children: [
                               if (_currentUser.role.isNotEmpty)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF667eea).withAlpha(30),
+                                    color: const Color(
+                                      0xFF667eea,
+                                    ).withAlpha(30),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
@@ -184,7 +194,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text(
                                   _currentUser.phone,
                                   style: TextStyle(
-                                    color: Theme.of(context).textTheme.bodySmall?.color,
+                                    color: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.color,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -194,7 +206,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           Text(
                             _currentUser.email,
                             style: TextStyle(
-                              color: Theme.of(context).textTheme.bodySmall?.color,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.color,
                               fontSize: 13,
                             ),
                           ),
@@ -216,11 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Icons.person,
                   ),
                   const SizedBox(height: 12),
-                  _buildInfoCard(
-                    'Email',
-                    _currentUser.email,
-                    Icons.email,
-                  ),
+                  _buildInfoCard('Email', _currentUser.email, Icons.email),
                   const SizedBox(height: 12),
                   _buildInfoCard(
                     'Nomor Telepon',
@@ -236,8 +246,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 12),
                   _buildInfoCard(
                     'Tanggal Bergabung',
-                    DateFormat('dd MMMM yyyy', 'id_ID')
-                        .format(_currentUser.createdAt),
+                    DateFormat(
+                      'dd MMMM yyyy',
+                      'id_ID',
+                    ).format(_currentUser.createdAt),
                     Icons.calendar_today,
                   ),
                 ],
@@ -274,23 +286,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: Column(
                       children: [
                         ListTile(
-                          leading: const Icon(Icons.lock,
-                              color: Color(0xFF667eea)),
+                          leading: const Icon(
+                            Icons.lock,
+                            color: Color(0xFF667eea),
+                          ),
                           title: const Text('Ubah Password'),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              size: 16, color: Colors.grey),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           onTap: _changePassword,
                         ),
                         Divider(color: Colors.grey.shade200, height: 1),
                         ListTile(
-                          leading:
-                              const Icon(Icons.logout, color: Colors.red),
+                          leading: const Icon(Icons.logout, color: Colors.red),
                           title: const Text(
                             'Keluar',
                             style: TextStyle(color: Colors.red),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              size: 16, color: Colors.grey),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.grey,
+                          ),
                           onTap: () {
                             showDialog(
                               context: context,
@@ -301,14 +320,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context),
+                                    onPressed: () => Navigator.pop(context),
                                     child: const Text('Batal'),
                                   ),
                                   TextButton(
                                     onPressed: _logout,
-                                    child: const Text('Keluar',
-                                        style: TextStyle(color: Colors.red)),
+                                    child: const Text(
+                                      'Keluar',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -353,10 +373,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -382,11 +399,8 @@ class EditProfileDialog extends StatefulWidget {
   final UserModel user;
   final Function(UserModel) onSave;
 
-  const EditProfileDialog({
-    Key? key,
-    required this.user,
-    required this.onSave,
-  }) : super(key: key);
+  const EditProfileDialog({Key? key, required this.user, required this.onSave})
+    : super(key: key);
 
   @override
   State<EditProfileDialog> createState() => _EditProfileDialogState();
@@ -396,7 +410,6 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
-  late String _selectedRole;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -405,10 +418,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     _nameController = TextEditingController(text: widget.user.fullName);
     _emailController = TextEditingController(text: widget.user.email);
     _phoneController = TextEditingController(text: widget.user.phone);
-    _selectedRole = widget.user.role;
   }
-
-  
 
   @override
   void dispose() {
@@ -503,10 +513,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF667eea),
           ),
-          child: const Text(
-            'Simpan',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: const Text('Simpan', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -518,7 +525,7 @@ class ChangePasswordDialog extends StatefulWidget {
   final void Function(String oldPassword, String newPassword) onSave;
 
   const ChangePasswordDialog({Key? key, required this.onSave})
-      : super(key: key);
+    : super(key: key);
 
   @override
   State<ChangePasswordDialog> createState() => _ChangePasswordDialogState();
@@ -566,9 +573,11 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                   labelText: 'Password Lama',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(_showOldPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
+                    icon: Icon(
+                      _showOldPassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                     onPressed: () =>
                         setState(() => _showOldPassword = !_showOldPassword),
                   ),
@@ -588,9 +597,11 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                   labelText: 'Password Baru',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(_showNewPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
+                    icon: Icon(
+                      _showNewPassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                     onPressed: () =>
                         setState(() => _showNewPassword = !_showNewPassword),
                   ),
@@ -613,11 +624,14 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                   labelText: 'Konfirmasi Password',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon: Icon(_showConfirmPassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
+                    icon: Icon(
+                      _showConfirmPassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                     onPressed: () => setState(
-                        () => _showConfirmPassword = !_showConfirmPassword),
+                      () => _showConfirmPassword = !_showConfirmPassword,
+                    ),
                   ),
                 ),
                 validator: (value) {
@@ -651,10 +665,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF667eea),
           ),
-          child: const Text(
-            'Simpan',
-            style: TextStyle(color: Colors.white),
-          ),
+          child: const Text('Simpan', style: TextStyle(color: Colors.white)),
         ),
       ],
     );

@@ -63,7 +63,9 @@ class EmployeeModel {
       email: json['email'] ?? '',
       phone: json['phone'] ?? '',
       address: json['address'] ?? '',
-      joinDate: DateTime.parse(json['joinDate'] ?? DateTime.now().toIso8601String()),
+      joinDate: DateTime.parse(
+        json['joinDate'] ?? DateTime.now().toIso8601String(),
+      ),
       hourlyRate: json['hourlyRate'] ?? 0,
       standardHoursPerDay: json['standardHoursPerDay'] ?? 8,
       transportAllowance: json['transportAllowance'] ?? 0,

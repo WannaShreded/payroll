@@ -57,7 +57,9 @@ class PayrollModel {
       totalDaysPresent: json['totalDaysPresent'] ?? 0,
       totalHoursWorked: (json['totalHoursWorked'] ?? 0).toDouble(),
       hourlyRate: json['hourlyRate'] ?? 0,
-      createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 }

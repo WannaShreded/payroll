@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -8,7 +7,6 @@ import 'screens/dashboard_page.dart';
 import 'services/session_service.dart';
 import 'services/auth_service.dart';
 import 'theme/app_theme.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -79,9 +77,7 @@ class _InitialRoutePageState extends State<InitialRoutePage> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
         return snapshot.data ?? const LoginPage();

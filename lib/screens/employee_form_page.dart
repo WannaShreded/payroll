@@ -33,16 +33,28 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
   void initState() {
     super.initState();
     _formKey = GlobalKey<FormState>();
-    _nameController = TextEditingController(text: widget.employee?.fullName ?? '');
-    _emailController = TextEditingController(text: widget.employee?.email ?? '');
-    _phoneController = TextEditingController(text: widget.employee?.phone ?? '');
-    _addressController = TextEditingController(text: widget.employee?.address ?? '');
-    _transportController = TextEditingController(text: widget.employee?.transportAllowance.toString() ?? '0');
-    _mealController = TextEditingController(text: widget.employee?.mealAllowance.toString() ?? '0');
+    _nameController = TextEditingController(
+      text: widget.employee?.fullName ?? '',
+    );
+    _emailController = TextEditingController(
+      text: widget.employee?.email ?? '',
+    );
+    _phoneController = TextEditingController(
+      text: widget.employee?.phone ?? '',
+    );
+    _addressController = TextEditingController(
+      text: widget.employee?.address ?? '',
+    );
+    _transportController = TextEditingController(
+      text: widget.employee?.transportAllowance.toString() ?? '0',
+    );
+    _mealController = TextEditingController(
+      text: widget.employee?.mealAllowance.toString() ?? '0',
+    );
     _selectedJoinDate = widget.employee?.joinDate ?? DateTime.now();
     _standardHours = widget.employee?.standardHoursPerDay ?? 8;
     _hourlyRate = widget.employee?.hourlyRate ?? 0;
-    
+
     if (widget.employee != null) {
       _selectedPosition = widget.employee!.position;
       _hourlyRate = widget.employee!.hourlyRate;
@@ -75,7 +87,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
   }
 
   void _saveEmployee() async {
-    if (_formKey.currentState!.validate() && _selectedPosition != null && _selectedJoinDate != null) {
+    if (_formKey.currentState!.validate() &&
+        _selectedPosition != null &&
+        _selectedJoinDate != null) {
       setState(() {
         _isLoading = true;
       });
@@ -120,7 +134,11 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
         if (success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(widget.employee != null ? 'Karyawan diperbarui' : 'Karyawan ditambahkan'),
+              content: Text(
+                widget.employee != null
+                    ? 'Karyawan diperbarui'
+                    : 'Karyawan ditambahkan',
+              ),
               backgroundColor: AppColors.success,
             ),
           );
@@ -133,9 +151,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
       }
     } else {
       if (_selectedPosition == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pilih jabatan')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Pilih jabatan')));
       }
       if (_selectedJoinDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -149,7 +167,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.employee != null ? 'Edit Karyawan' : 'Tambah Karyawan'),
+        title: Text(
+          widget.employee != null ? 'Edit Karyawan' : 'Tambah Karyawan',
+        ),
         backgroundColor: AppColors.primaryGradientStart,
       ),
       body: SingleChildScrollView(
@@ -164,7 +184,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Nama Lengkap',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.person),
                 ),
                 validator: Validators.validateFullName,
@@ -175,7 +197,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 initialValue: _selectedPosition,
                 decoration: InputDecoration(
                   labelText: 'Jabatan',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.work),
                 ),
                 items: PositionList.positions.map((position) {
@@ -231,13 +255,17 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.email),
                 ),
                 validator: (value) {
                   final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                  if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
-                  if (!emailRegex.hasMatch(value)) return 'Format email tidak valid';
+                  if (value == null || value.isEmpty)
+                    return 'Email tidak boleh kosong';
+                  if (!emailRegex.hasMatch(value))
+                    return 'Format email tidak valid';
                   return null;
                 },
               ),
@@ -248,7 +276,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: 'No. Telepon',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.phone),
                 ),
                 validator: Validators.validatePhone,
@@ -260,11 +290,14 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Alamat',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.location_on),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Alamat tidak boleh kosong';
+                  if (value == null || value.isEmpty)
+                    return 'Alamat tidak boleh kosong';
                   return null;
                 },
               ),
@@ -273,7 +306,10 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
               GestureDetector(
                 onTap: _selectJoinDate,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
@@ -284,15 +320,24 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Tanggal Bergabung', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          const Text(
+                            'Tanggal Bergabung',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
                           if (_selectedJoinDate != null)
                             Text(
                               '${_selectedJoinDate!.day}/${_selectedJoinDate!.month}/${_selectedJoinDate!.year}',
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                         ],
                       ),
-                      const Icon(Icons.calendar_today, color: AppColors.primaryGradientStart),
+                      const Icon(
+                        Icons.calendar_today,
+                        color: AppColors.primaryGradientStart,
+                      ),
                     ],
                   ),
                 ),
@@ -314,7 +359,10 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                         const Text('Jam Kerja Standard/Hari'),
                         Text(
                           '$_standardHours Jam',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -344,11 +392,14 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Tunjangan Transport (Rp)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.directions_car),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Tidak boleh kosong';
+                  if (value == null || value.isEmpty)
+                    return 'Tidak boleh kosong';
                   if (int.tryParse(value) == null) return 'Hanya angka';
                   return null;
                 },
@@ -360,11 +411,14 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Tunjangan Makan (Rp)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   prefixIcon: const Icon(Icons.restaurant),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Tidak boleh kosong';
+                  if (value == null || value.isEmpty)
+                    return 'Tidak boleh kosong';
                   if (int.tryParse(value) == null) return 'Hanya angka';
                   return null;
                 },

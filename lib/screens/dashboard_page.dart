@@ -21,79 +21,57 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DummySearchDelegate extends SearchDelegate<String> {
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [IconButton(icon: const Icon(Icons.clear), onPressed: () => query = '')];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => close(context, ''));
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return Center(child: Text('Hasil pencarian: $query'));
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return ListView(
-      children: [
-        ListTile(title: Text('Cari: $query')),
-      ],
-    );
-  }
-}
+// _DummySearchDelegate removed — search UI was removed from the header.
 
 class _DashboardPageState extends State<DashboardPage> {
-    Future<Map<String, dynamic>> _fetchDashboardStats() async {
-      // Get total employees
-      final employees = await EmployeeService.getAllEmployees();
-      final totalEmployees = employees.length;
+  Future<Map<String, dynamic>> _fetchDashboardStats() async {
+    // Get total employees
+    final employees = await EmployeeService.getAllEmployees();
+    final totalEmployees = employees.length;
 
-      // Get payroll data for current month: sum payroll per employee to avoid duplicates
-      final now = DateTime.now();
-      double totalSalary = 0.0;
+    // Get payroll data for current month: sum payroll per employee to avoid duplicates
+    final now = DateTime.now();
+    double totalSalary = 0.0;
 
-      for (final emp in employees) {
-        try {
-          final payroll = await PayrollService.getPayrollByMonth(emp.id, now.month, now.year);
-          if (payroll != null) {
-            totalSalary += payroll.totalNetSalary.toDouble();
-          } else {
-            // fallback: use estimated salary for this employee
-            totalSalary += emp.getEstimatedSalary().toDouble();
-          }
-        } catch (e) {
-          // ignore: avoid_print
-          print('Error fetching payroll for ${emp.id}: $e');
+    for (final emp in employees) {
+      try {
+        final payroll = await PayrollService.getPayrollByMonth(
+          emp.id,
+          now.month,
+          now.year,
+        );
+        if (payroll != null) {
+          totalSalary += payroll.totalNetSalary.toDouble();
+        } else {
+          // fallback: use estimated salary for this employee
           totalSalary += emp.getEstimatedSalary().toDouble();
         }
+      } catch (e) {
+        // ignore: avoid_print
+        print('Error fetching payroll for ${emp.id}: $e');
+        totalSalary += emp.getEstimatedSalary().toDouble();
       }
-
-      final String formattedSalary = _formatCurrency(totalSalary);
-
-      return {
-        'totalEmployees': totalEmployees,
-        'totalSalary': formattedSalary,
-      };
     }
 
-    String _formatCurrency(double amount) {
-      final s = amount.round().toString();
-      final buffer = StringBuffer();
-      int count = 0;
-      for (int i = s.length - 1; i >= 0; i--) {
-        buffer.write(s[i]);
-        count++;
-        if (count % 3 == 0 && i != 0) buffer.write('.');
-      }
-      final formattedReversed = buffer.toString();
-      final formatted = formattedReversed.split('').reversed.join('');
-      return 'Rp $formatted';
+    final String formattedSalary = _formatCurrency(totalSalary);
+
+    return {'totalEmployees': totalEmployees, 'totalSalary': formattedSalary};
+  }
+
+  String _formatCurrency(double amount) {
+    final s = amount.round().toString();
+    final buffer = StringBuffer();
+    int count = 0;
+    for (int i = s.length - 1; i >= 0; i--) {
+      buffer.write(s[i]);
+      count++;
+      if (count % 3 == 0 && i != 0) buffer.write('.');
     }
+    final formattedReversed = buffer.toString();
+    final formatted = formattedReversed.split('').reversed.join('');
+    return 'Rp $formatted';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -103,9 +81,6 @@ class _DashboardPageState extends State<DashboardPage> {
   void dispose() {
     super.dispose();
   }
-  
-
-
 
   Widget _buildHomePage() {
     final hour = DateTime.now().hour;
@@ -149,7 +124,11 @@ class _DashboardPageState extends State<DashboardPage> {
                     Container(
                       decoration: BoxDecoration(
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 8, offset: const Offset(0, 4)),
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
                         ],
                         shape: BoxShape.circle,
                       ),
@@ -158,9 +137,17 @@ class _DashboardPageState extends State<DashboardPage> {
                         backgroundColor: AppColors.blue,
                         child: Text(
                           widget.user.fullName.isNotEmpty
-                              ? widget.user.fullName.split(' ').map((s) => s.isNotEmpty ? s[0] : '').take(2).join()
+                              ? widget.user.fullName
+                                    .split(' ')
+                                    .map((s) => s.isNotEmpty ? s[0] : '')
+                                    .take(2)
+                                    .join()
                               : '?',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -170,25 +157,48 @@ class _DashboardPageState extends State<DashboardPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(greeting, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                          Text(
+                            greeting,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
+                          ),
                           const SizedBox(height: 6),
-                          Text(widget.user.fullName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                          Text(
+                            widget.user.fullName,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 10),
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                                child: Text(widget.user.role, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.bold)),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  widget.user.role,
+                                  style: Theme.of(context).textTheme.labelSmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
                               const SizedBox(width: 8),
-                              Text(DateTime.now().toLocal().toString().split(' ')[0], style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[600])),
+                              Text(
+                                DateTime.now().toLocal().toString().split(
+                                  ' ',
+                                )[0],
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
+                              ),
                             ],
                           ),
                         ],
                       ),
                     ),
-                    
                   ],
                 ),
               ),
@@ -256,8 +266,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 Text(
                   AppText.quickActions,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 // Quick actions stacked vertically as three rows
@@ -269,7 +279,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       iconBgColor: AppColors.blue,
                       onTap: () {
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => EmployeePage(user: widget.user)),
+                          MaterialPageRoute(
+                            builder: (_) => EmployeePage(user: widget.user),
+                          ),
                         );
                       },
                     ),
@@ -280,7 +292,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       iconBgColor: AppColors.success,
                       onTap: () {
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => PayrollPage(user: widget.user)),
+                          MaterialPageRoute(
+                            builder: (_) => PayrollPage(user: widget.user),
+                          ),
                         );
                       },
                     ),

@@ -7,11 +7,7 @@ class EmployeeCard extends StatelessWidget {
   final EmployeeModel employee;
   final VoidCallback onTap;
 
-  const EmployeeCard({
-    super.key,
-    required this.employee,
-    required this.onTap,
-  });
+  const EmployeeCard({super.key, required this.employee, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -69,25 +65,25 @@ class EmployeeCard extends StatelessWidget {
                   Text(
                     employee.fullName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     employee.position,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Rp ${PositionList.formatCurrency(estimatedSalary)}/bulan',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.success,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: AppColors.success,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),

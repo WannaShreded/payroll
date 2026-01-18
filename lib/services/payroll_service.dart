@@ -12,7 +12,11 @@ class PayrollService {
     try {
       final snap = await _col.get();
       return snap.docs
-          .map((d) => PayrollModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .map(
+            (d) => PayrollModel.fromJson(
+              Map<String, dynamic>.from(d.data() as Map),
+            ),
+          )
           .toList();
     } catch (e) {
       // ignore: avoid_print
@@ -37,8 +41,8 @@ class PayrollService {
       );
 
       // Calculate salary
-      final baseSalary =
-          (employee.hourlyRate * attendance.totalHoursWorked).toInt();
+      final baseSalary = (employee.hourlyRate * attendance.totalHoursWorked)
+          .toInt();
       final totalNetSalary =
           baseSalary + employee.transportAllowance + employee.mealAllowance;
 
@@ -95,7 +99,9 @@ class PayrollService {
           .get();
 
       if (snap.docs.isEmpty) return null;
-      return PayrollModel.fromJson(Map<String, dynamic>.from(snap.docs.first.data() as Map));
+      return PayrollModel.fromJson(
+        Map<String, dynamic>.from(snap.docs.first.data() as Map),
+      );
     } catch (e) {
       // ignore: avoid_print
       print('Error getting payroll by month from Firestore: $e');
@@ -113,7 +119,11 @@ class PayrollService {
           .get();
 
       return snap.docs
-          .map((d) => PayrollModel.fromJson(Map<String, dynamic>.from(d.data() as Map)))
+          .map(
+            (d) => PayrollModel.fromJson(
+              Map<String, dynamic>.from(d.data() as Map),
+            ),
+          )
           .toList();
     } catch (e) {
       // ignore: avoid_print

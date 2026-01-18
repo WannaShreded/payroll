@@ -58,13 +58,17 @@ class _LoginPageState extends State<LoginPage> {
 
       // Simulate network delay
       await Future.delayed(
-          const Duration(seconds: AppConstants.loginDelaySeconds));
+        const Duration(seconds: AppConstants.loginDelaySeconds),
+      );
 
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
       // Attempt login via AuthService
-      final session = await AuthService.loginUser(email: email, password: password);
+      final session = await AuthService.loginUser(
+        email: email,
+        password: password,
+      );
       if (session != null) {
         // Save remember me preference
         if (_rememberMe) {
@@ -94,14 +98,16 @@ class _LoginPageState extends State<LoginPage> {
 
           // Redirect to dashboard
           Future.delayed(
-              const Duration(seconds: AppConstants.redirectDelaySeconds), () {
-            if (mounted && user != null) {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => DashboardPage(user: user)),
-                (route) => false,
-              );
-            }
-          });
+            const Duration(seconds: AppConstants.redirectDelaySeconds),
+            () {
+              if (mounted && user != null) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => DashboardPage(user: user)),
+                  (route) => false,
+                );
+              }
+            },
+          );
         }
       } else {
         setState(() {
@@ -120,9 +126,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _showForgotPasswordDialog() {
-    // Forgot password removed by design
-  }
+  // Forgot password feature removed; helper removed to keep code clean.
 
   @override
   Widget build(BuildContext context) {
@@ -149,16 +153,16 @@ class _LoginPageState extends State<LoginPage> {
                 Text(
                   AppText.loginTitle,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppColors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   AppText.loginSubtitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.white70,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.white70),
                 ),
                 const SizedBox(height: 48),
                 // Form
@@ -222,9 +226,8 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         title: Text(
                           AppText.rememberMe,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.white,
-                              ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: AppColors.white),
                         ),
                         checkColor: AppColors.white,
                         activeColor: Colors.white70,
@@ -261,9 +264,7 @@ class _LoginPageState extends State<LoginPage> {
                                 )
                               : Text(
                                   AppText.loginButton,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                         ),
@@ -275,12 +276,8 @@ class _LoginPageState extends State<LoginPage> {
                         children: [
                           Text(
                             AppText.dontHaveAccount,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.white70,
-                                ),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.white70),
                           ),
                           GestureDetector(
                             onTap: () {
@@ -292,9 +289,7 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             child: Text(
                               AppText.signUp,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
                                     color: AppColors.white,
                                     fontWeight: FontWeight.bold,
@@ -315,4 +310,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

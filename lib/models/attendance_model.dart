@@ -7,7 +7,8 @@ class AttendanceModel {
   final int day; // 1-31
   final int month; // 1-12
   final int year;
-  final String status; // 'hadir', 'tidak_hadir' (legacy 'terlambat' treated as 'hadir')
+  final String
+  status; // 'hadir', 'tidak_hadir' (legacy 'terlambat' treated as 'hadir')
   final TimeOfDay? entryTime; // Jam masuk (HH:MM)
   final TimeOfDay? exitTime; // Jam pulang (HH:MM)
   final double hoursWorked; // actual hours worked
@@ -36,8 +37,12 @@ class AttendanceModel {
       'month': month,
       'year': year,
       'status': status,
-      'entryTime': entryTime != null ? '${entryTime!.hour}:${entryTime!.minute}' : null,
-      'exitTime': exitTime != null ? '${exitTime!.hour}:${exitTime!.minute}' : null,
+      'entryTime': entryTime != null
+          ? '${entryTime!.hour}:${entryTime!.minute}'
+          : null,
+      'exitTime': exitTime != null
+          ? '${exitTime!.hour}:${exitTime!.minute}'
+          : null,
       'hoursWorked': hoursWorked,
       'isPresent': isPresent,
       'notes': notes,
@@ -79,8 +84,16 @@ class AttendanceModel {
 
         // Map like {'hour':8,'minute':30} or {'h':8,'m':30}
         if (timeVal is Map) {
-          final dynamic hh = timeVal['hour'] ?? timeVal['h'] ?? timeVal['hours'] ?? timeVal['0'];
-          final dynamic mm = timeVal['minute'] ?? timeVal['m'] ?? timeVal['minutes'] ?? timeVal['1'];
+          final dynamic hh =
+              timeVal['hour'] ??
+              timeVal['h'] ??
+              timeVal['hours'] ??
+              timeVal['0'];
+          final dynamic mm =
+              timeVal['minute'] ??
+              timeVal['m'] ??
+              timeVal['minutes'] ??
+              timeVal['1'];
           final h = int.tryParse(hh?.toString() ?? '');
           final m = int.tryParse(mm?.toString() ?? '');
           if (h != null && m != null) return TimeOfDay(hour: h, minute: m);
@@ -110,9 +123,15 @@ class AttendanceModel {
     return AttendanceModel(
       id: json['id'] ?? '',
       employeeId: json['employeeId'] ?? '',
-      day: (json['day'] is int) ? json['day'] : int.tryParse(json['day']?.toString() ?? '') ?? 0,
-      month: (json['month'] is int) ? json['month'] : int.tryParse(json['month']?.toString() ?? '') ?? 0,
-      year: (json['year'] is int) ? json['year'] : int.tryParse(json['year']?.toString() ?? '') ?? 0,
+      day: (json['day'] is int)
+          ? json['day']
+          : int.tryParse(json['day']?.toString() ?? '') ?? 0,
+      month: (json['month'] is int)
+          ? json['month']
+          : int.tryParse(json['month']?.toString() ?? '') ?? 0,
+      year: (json['year'] is int)
+          ? json['year']
+          : int.tryParse(json['year']?.toString() ?? '') ?? 0,
       status: json['status'] ?? 'tidak_hadir',
       entryTime: parseTime(json['entryTime']),
       exitTime: parseTime(json['exitTime']),
@@ -186,4 +205,3 @@ class AttendanceSummary {
     required this.attendancePercentage,
   });
 }
-

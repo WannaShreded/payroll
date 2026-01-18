@@ -32,12 +32,12 @@ class _PayrollPageState extends State<PayrollPage> {
   Future<void> _loadEmployees() async {
     setState(() => _isLoading = true);
     final employees = await EmployeeService.getAllEmployees();
-    
+
     // Generate sample attendance data for each employee
     for (var emp in employees) {
       await AttendanceService.generateSampleAttendance(emp.id);
     }
-    
+
     setState(() {
       _employees = employees;
       _isLoading = false;
@@ -48,19 +48,19 @@ class _PayrollPageState extends State<PayrollPage> {
     // Calculate payroll
     try {
       setState(() => _isLoading = true);
-      
+
       final payroll = await PayrollService.calculatePayroll(
         employee,
         _selectedMonth,
         _selectedYear,
       );
-      
+
       // Save payroll record
       await PayrollService.savePayroll(payroll);
-      
+
       if (mounted) {
         setState(() => _isLoading = false);
-        
+
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -70,19 +70,17 @@ class _PayrollPageState extends State<PayrollPage> {
           builder: (context) => DraggableScrollableSheet(
             expand: false,
             initialChildSize: 0.9,
-            builder: (context, scrollController) => SalarySlip(
-              payroll: payroll,
-              employee: employee,
-            ),
+            builder: (context, scrollController) =>
+                SalarySlip(payroll: payroll, employee: employee),
           ),
         );
       }
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -111,10 +109,7 @@ class _PayrollPageState extends State<PayrollPage> {
                   children: [
                     const Text(
                       'Pilih Periode',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -153,7 +148,10 @@ class _PayrollPageState extends State<PayrollPage> {
                           }
                         });
                       },
-                      icon: const Icon(Icons.chevron_right, color: Colors.white),
+                      icon: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -165,15 +163,15 @@ class _PayrollPageState extends State<PayrollPage> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _employees.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _employees.length,
-                        itemBuilder: (context, index) {
-                          final employee = _employees[index];
-                          return _buildEmployeeCard(employee);
-                        },
-                      ),
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _employees.length,
+                    itemBuilder: (context, index) {
+                      final employee = _employees[index];
+                      return _buildEmployeeCard(employee);
+                    },
+                  ),
           ),
         ],
       ),
@@ -227,24 +225,20 @@ class _PayrollPageState extends State<PayrollPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.receipt_long,
-            size: 80,
-            color: Colors.grey[300],
-          ),
+          Icon(Icons.receipt_long, size: 80, color: Colors.grey[300]),
           const SizedBox(height: 16),
           Text(
             'Belum ada karyawan',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.grey[600],
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
           ),
           const SizedBox(height: 8),
           Text(
             'Tambahkan karyawan di menu Data Karyawan',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[500],
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
           ),
         ],
       ),
@@ -264,7 +258,7 @@ class _PayrollPageState extends State<PayrollPage> {
       'September',
       'Oktober',
       'November',
-      'Desember'
+      'Desember',
     ];
     return monthNames[month - 1];
   }
