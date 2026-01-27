@@ -24,11 +24,13 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   }
 
   void _editEmployee() async {
-    final result = await Navigator.of(context).push<bool>(
+    final localContext = context;
+    final result = await Navigator.of(localContext).push<bool>(
       MaterialPageRoute(builder: (_) => EmployeeFormPage(employee: _employee)),
     );
 
     if (result == true) {
+      if (!mounted) return;
       // Reload employee data
       final updatedEmployee = await EmployeeService.getEmployeeById(
         _employee.id,
@@ -44,7 +46,9 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
   void _deleteEmployee() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) {
+        final dialogContext = ctx;
+        return AlertDialog(
         title: const Text('Hapus Karyawan'),
         content: Text(
           'Apakah Anda yakin ingin menghapus ${_employee.fullName}?',
@@ -56,21 +60,21 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
               final success = await EmployeeService.deleteEmployee(
                 _employee.id,
               );
               if (mounted) {
                 if (success) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
                       content: Text('Karyawan dihapus'),
                       backgroundColor: Colors.green,
                     ),
                   );
-                  Navigator.pop(context, true);
+                  Navigator.pop(dialogContext, true);
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(content: Text('Gagal menghapus karyawan')),
                   );
                 }
@@ -79,7 +83,8 @@ class _EmployeeDetailPageState extends State<EmployeeDetailPage> {
             child: const Text('Hapus', style: TextStyle(color: Colors.red)),
           ),
         ],
-      ),
+        );
+      },
     );
   }
 

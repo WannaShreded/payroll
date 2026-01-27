@@ -12,16 +12,16 @@ class Position {
 
 class PositionList {
   static final List<Position> positions = [
-    Position(id: '1', name: 'Direktur Utama', hourlyRate: 150000),
-    Position(id: '2', name: 'Direktur', hourlyRate: 125000),
-    Position(id: '3', name: 'General Manager', hourlyRate: 100000),
-    Position(id: '4', name: 'Manager', hourlyRate: 80000),
-    Position(id: '5', name: 'Supervisor', hourlyRate: 60000),
-    Position(id: '6', name: 'Staff Senior', hourlyRate: 45000),
-    Position(id: '7', name: 'Staff', hourlyRate: 35000),
-    Position(id: '8', name: 'Staff Junior', hourlyRate: 25000),
-    Position(id: '9', name: 'Operator', hourlyRate: 20000),
-    Position(id: '10', name: 'Magang', hourlyRate: 15000),
+    const Position(id: '1', name: 'Direktur Utama', hourlyRate: 150000),
+    const Position(id: '2', name: 'Direktur', hourlyRate: 125000),
+    const Position(id: '3', name: 'General Manager', hourlyRate: 100000),
+    const Position(id: '4', name: 'Manager', hourlyRate: 80000),
+    const Position(id: '5', name: 'Supervisor', hourlyRate: 60000),
+    const Position(id: '6', name: 'Staff Senior', hourlyRate: 45000),
+    const Position(id: '7', name: 'Staff', hourlyRate: 35000),
+    const Position(id: '8', name: 'Staff Junior', hourlyRate: 25000),
+    const Position(id: '9', name: 'Operator', hourlyRate: 20000),
+    const Position(id: '10', name: 'Magang', hourlyRate: 15000),
   ];
 
   static Position? getPositionById(String id) {

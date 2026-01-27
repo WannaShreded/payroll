@@ -47,7 +47,7 @@ class PayrollService {
           baseSalary + employee.transportAllowance + employee.mealAllowance;
 
       final payroll = PayrollModel(
-        id: '${employee.id}_${month}_${year}',
+        id: '${employee.id}_${month}_$year',
         employeeId: employee.id,
         month: month,
         year: year,

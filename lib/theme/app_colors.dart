@@ -54,5 +54,5 @@ class AppColors {
   static const Color activeBadge = Color(0xFFDEFCF0);
   static const Color activeText = Color(0xFF047857);
   static const Color inactiveBadge = Color(0xFFFEE2E2);
-  static const Color inactiveText = Color(0xDC2626);
+  static const Color inactiveText = Color(0x00dc2626);
 }

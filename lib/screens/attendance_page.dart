@@ -48,7 +48,8 @@ class _AttendancePageState extends State<AttendancePage> {
         8, // standard hours per day
       );
     } catch (e) {
-      print('Error initializing: $e');
+      // Use debugPrint for logging to avoid analyzer avoid_print hints
+      debugPrint('Error initializing: $e');
     } finally {
       setState(() => isLoading = false);
     }
@@ -87,7 +88,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 children: [
                   // Header with card-style and month selector inside
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                         begin: Alignment.topLeft,

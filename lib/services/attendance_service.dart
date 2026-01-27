@@ -232,12 +232,12 @@ class AttendanceService {
         final status = isAbsent ? 'tidak_hadir' : 'hadir';
         final entryMinute = isAbsent ? 0 : lateMinute;
 
-        final exitHour = 17;
-        final exitMinute = 0;
+        const exitHour = 17;
+        const exitMinute = 0;
         int minutesWorked = 0;
         if (!isAbsent) {
           final entryTotal = 8 * 60 + entryMinute;
-          final exitTotal = exitHour * 60 + exitMinute;
+          const exitTotal = exitHour * 60 + exitMinute;
           minutesWorked = (exitTotal - entryTotal).clamp(0, 24 * 60);
         }
 
@@ -252,12 +252,12 @@ class AttendanceService {
               ? TimeOfDay(hour: 8, minute: entryMinute)
               : null,
           exitTime: status != 'tidak_hadir'
-              ? TimeOfDay(hour: exitHour, minute: exitMinute)
+              ? const TimeOfDay(hour: exitHour, minute: exitMinute)
               : null,
           hoursWorked: status != 'tidak_hadir' ? (minutesWorked / 60.0) : 0,
           isPresent: status != 'tidak_hadir',
           notes: (!isAbsent && lateMinute > 0)
-              ? 'Terlambat ${lateMinute} menit'
+              ? 'Terlambat $lateMinute menit'
               : null,
         );
 

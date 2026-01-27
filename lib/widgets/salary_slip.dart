@@ -247,7 +247,7 @@ class SalarySlip extends StatelessWidget {
                                 pw.SizedBox(height: 6),
                                 pw.Text(
                                   'Periode: $period',
-                                  style: pw.TextStyle(
+                                  style: const pw.TextStyle(
                                     color: pdf.PdfColors.white,
                                   ),
                                 ),

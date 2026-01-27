@@ -112,7 +112,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Color.lerp(Colors.black, Colors.transparent, 0.92)!,
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -125,7 +125,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+                            color: Color.lerp(Colors.black, Colors.transparent, 0.92)!,
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -215,7 +215,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   future: _fetchDashboardStats(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Row(
+                      return const Row(
                         children: [
                           Expanded(
                             child: StatCard(
@@ -225,7 +225,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               bgColor: AppColors.orange,
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Expanded(
                             child: StatCard(
                               title: AppText.totalSalary,

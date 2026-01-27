@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Laporan UAS - Aplikasi Payroll Mobile</title>
+  <style>
+    @page { size: A4; margin: 20mm; }
+    body { font-family: 'Times New Roman', Times, serif; color: #111; padding: 20px; }
+    h1 { text-align: center; font-size: 20pt; margin-bottom: 8px; }
+    h2 { font-size: 14pt; margin-top: 18px; }
+    h3 { font-size: 12pt; margin-top: 12px; }
+    p { text-align: justify; text-justify: inter-word; margin: 8px 0; line-height: 1.4; }
+    .pre { white-space: pre-wrap; font-family: inherit; }
+    .center { text-align: center; }
+    .small { font-size: 10pt; }
+  </style>
+</head>
+<body>
+  <h1>LAPORAN TUGAS BESAR</h1>
+  <div class="center small">MATA KULIAH: Pemrograman Perangkat Bergerak (IF05104)</div>
+  <h2 class="center">Aplikasi Payroll Mobile (Payroll Management System)</h2>
+  <p class="center small">PENYUSUN: [Nama Lengkap] — NIM: [NIM]</p>
+  <p class="center small">Program Studi Informatika — [Nama Universitas] — Semester 5 — Tahun Akademik 2025/2026</p>
+
+  <hr/>
+
+  <div class="pre">
+LAPORAN TUGAS BESAR
+
+MATA KULIAH: Pemrograman Perangkat Bergerak (IF05104)
+
+JUDUL PROYEK: Aplikasi Payroll Mobile (Payroll Management System)
+
+PENYUSUN: [Nama Lengkap] — NIM: [NIM]
+
+PROGRAM STUDI: Informatika
+
+FAKULTAS: [Nama Fakultas]
+
+INSTITUSI: [Nama Universitas]
+
+DOSEN PEMBIMBING: [Nama Dosen Pembimbing]
+
+SEMESTER: 5
+
+TAHUN AKADEMIK: 2025/2026
+
+--------------------------------------------------------------------------------
+
+CATATAN VALIDASI
+- File ini berisi laporan Tugas Besar sesuai struktur yang diminta (Bagian Awal, Bagian Inti, Bagian Akhir).
+- Daftar pustaka telah distandarisasi dan dilengkapi; sumber daring menyertakan URL dan tanggal akses (20 Januari 2026).
+- Pemeriksaan EYD telah dilakukan: perbaikan tata bahasa, kapitalisasi, dan tanda baca. Penggantian placeholder (nama, NIM, fakultas, institusi, dsb.) diperlukan oleh penyusun.
+- Validitas faktual terhadap isi sumber eksternal (mis. DOI, nomor jurnal, atau edisi buku cetak) belum diverifikasi secara otomatis oleh sistem — disarankan verifikasi akhir oleh penyusun.
+
+--------------------------------------------------------------------------------
+
+A. BAGIAN AWAL
+
+1. Halaman Sampul
+
+LAPORAN TUGAS BESAR
+
+MATA KULIAH: Pemrograman Perangkat Bergerak (IF05104)
+
+JUDUL PROYEK: Aplikasi Payroll Mobile (Payroll Management System)
+
+PENYUSUN: [Nama Lengkap]
+
+NIM: [NIM]
+
+PROGRAM STUDI: Informatika, Fakultas [Nama Fakultas]
+
+INSTITUSI: [Nama Universitas]
+
+DOSEN PEMBIMBING: [Nama Dosen Pembimbing]
+
+SEMESTER: 5 — Tahun Akademik 2025/2026
+
+
+2. Halaman Judul
+
+LAPORAN TUGAS BESAR
+
+"Aplikasi Payroll Mobile untuk Pengelolaan Gaji dan Profil Karyawan"
+
+Disusun untuk memenuhi syarat Ujian Akhir Semester Mata Kuliah Pemrograman Perangkat Bergerak (IF05104)
+
+Disusun oleh:
+
+[Nama Lengkap] — NIM: [NIM]
+
+Program Studi Informatika, [Nama Universitas]
+
+Pembimbing: [Nama Dosen Pembimbing]
+
+Tanggal Penyerahan: Januari 2026
+
+
+3. Kata Pengantar
+
+Puji syukur penulis panjatkan ke hadirat Tuhan Yang Maha Esa karena dengan rahmat-Nya laporan Tugas Besar ini dapat diselesaikan. Laporan ini disusun sebagai salah satu syarat penyelesaian mata kuliah Pemrograman Perangkat Bergerak (IF05104). Aplikasi yang dilaporkan adalah aplikasi mobile untuk pengelolaan payroll (penggajian) yang telah diimplementasikan menggunakan teknologi Flutter dan layanan Firebase.
+
+Penulis menyadari bahwa laporan ini masih dapat disempurnakan. Oleh karena itu, kritik dan saran yang membangun sangat penulis harapkan demi perbaikan di masa mendatang. Penulis mengucapkan terima kasih kepada dosen pembimbing, rekan-rekan, dan semua pihak yang telah memberikan dukungan selama proses perancangan dan pengembangan aplikasi.
+
+
+4. Daftar Isi
+
+- A. BAGIAN AWAL
+  - Halaman Sampul
+  - Halaman Judul
+  - Kata Pengantar
+  - Daftar Isi
+- B. BAGIAN INTI
+  - BAB I – PENDAHULUAN
+  - BAB II – TINJAUAN PUSTAKA / LANDASAN TEORI
+  - BAB III – IMPLEMENTASI DAN PEMBAHASAN
+  - BAB IV – PENUTUP
+- C. BAGIAN AKHIR
+  - Daftar Pustaka
+  - Lampiran
+ C. BAGIAN AKHIR
+
+1. Daftar Pustaka
+
+Sumber ilmiah dan dokumentasi teknis yang digunakan dalam perancangan dan implementasi proyek ini:
+
+- Hevner, A. R., March, S. T., Park, J., & Ram, S. (2004). Design Science in Information Systems Research. MIS Quarterly, 28(1), 75–105.
+
+- Google. (2026). Flutter — Beautiful native apps in record time. Diakses 20 Januari 2026 dari https://flutter.dev
+  - Dokumen utama: https://flutter.dev/docs (panduan pengembangan dan referensi widget).
+
+- Dart Language. (2026). Dart documentation. Diakses 20 Januari 2026 dari https://dart.dev
+
+- Google. (2026). Firebase Documentation. Diakses 20 Januari 2026 dari https://firebase.google.com/docs
+  - Halaman penting: Firebase Authentication (https://firebase.google.com/docs/auth), Cloud Firestore (https://firebase.google.com/docs/firestore).
+
+- Google. (2026). Material Design. Diakses 20 Januari 2026 dari https://material.io
+
+- Paket Flutter untuk pencetakan dan PDF:
+  - `printing` package — pub.dev. (2026). printing package for Flutter. Diakses 20 Januari 2026 dari https://pub.dev/packages/printing
+  - `pdf` package — pub.dev. (2026). pdf package for Flutter. Diakses 20 Januari 2026 dari https://pub.dev/packages/pdf
+
+- Alat konversi dan pustaka yang digunakan untuk ekspor/preview laporan:
+  - Pandoc. (2026). Pandoc — a universal document converter. Diakses 20 Januari 2026 dari https://pandoc.org
+  - ReportLab. (2026). ReportLab: PDF library for Python. Diakses 20 Januari 2026 dari https://www.reportlab.com
+  - Python Software Foundation. (2026). Python documentation. Diakses 20 Januari 2026 dari https://www.python.org
+
+- Dokumentasi tambahan dan panduan penggunaan:
+  - Firebase setup guide in project: `docs/FIREBASE_SETUP.md` (lokal, proyek).
+
+Sumber kode proyek (file internal yang menjadi rujukan implementasi):
+
+- Kode entry point: `lib/main.dart` (lokal, proyek).
+- Konfigurasi Firebase: `lib/firebase_options.dart` (lokal, proyek).
+- Modul layanan dan integrasi: semua file pada folder `lib/services/` (lokal, proyek).
+- Definisi model data: semua file pada folder `lib/models/` (lokal, proyek).
+- Skrip konversi laporan yang ditambahkan: `tools/md_to_pdf.py` (lokal, proyek).
+- Salinan laporan: `Laporan_UAS_Pemrograman_Perangkat_Bergerak.md` dan `Laporan_UAS_Pemrograman_Perangkat_Bergerak.html` (lokal, proyek).
+
+Catatan mengenai daftar pustaka:
+- Entri jurnal (Hevner et al.) digunakan sebagai landasan metodologis desain sistem informasi. Jika institusi mensyaratkan gaya sitasi tertentu (mis. APA, MLA, IEEE), silakan sesuaikan formatnya.
+- Untuk referensi daring (Flutter, Firebase, paket pub.dev, pandoc, reportlab), lampirkan versi paket atau tanggal revisi bila diperlukan untuk replikasi eksperimen.
+
+
+B. BAGIAN INTI
+
+BAB I – PENDAHULUAN
+
+1. Latar Belakang
+
+Dalam pengelolaan sumber daya manusia di banyak organisasi, proses penghitungan gaji, pencatatan kehadiran, dan penyimpanan data profil karyawan sering kali dilakukan secara manual atau tersebar di beberapa sistem yang tidak terintegrasi. Kondisi ini berpotensi menimbulkan kesalahan perhitungan, keterlambatan pembayaran, serta kesulitan dalam menghasilkan laporan yang akurat. Kebutuhan akan sistem yang mampu mengotomatisasi proses payroll, menyimpan data profil karyawan secara terpusat, serta menyediakan laporan yang mudah diakses menjadi penting, terutama pada era mobilitas tinggi di mana akses melalui perangkat mobile semakin dominan.
+
+Perkembangan teknologi mobile dan layanan backend cloud—seperti Flutter untuk pengembangan antarmuka lintas platform dan Firebase untuk layanan autentikasi serta basis data—memungkinkan pengembangan aplikasi payroll yang responsif, aman, dan dapat diakses kapan saja melalui perangkat seluler. Oleh karena itu, dikembangkan aplikasi mobile payroll yang mengintegrasikan autentikasi pengguna, manajemen data karyawan, perhitungan komponen gaji, serta pembuatan laporan profil.
+
+
+2. Rumusan Masalah
+
+Rumusan masalah yang menjadi fokus dalam tugas besar ini adalah:
+
+a. Bagaimana merancang dan mengimplementasikan aplikasi mobile yang memungkinkan pengelolaan data karyawan dan perhitungan gaji secara terpusat?
+
+b. Bagaimana mengintegrasikan autentikasi dan penyimpanan data secara aman menggunakan layanan cloud pada aplikasi mobile?
+
+c. Bagaimana menyajikan laporan profil dan rekap penggajian yang mudah diakses oleh pengguna melalui perangkat mobile?
+
+d. Apa saja kendala teknis yang muncul selama pengembangan dan bagaimana solusi yang diterapkan?
+
+
+3. Tujuan Tugas Besar
+
+Tujuan yang ingin dicapai dalam tugas besar ini adalah:
+
+a. Mengembangkan aplikasi mobile berbasis Flutter yang dapat melakukan manajemen profil karyawan dan penghitungan payroll.
+
+b. Mengimplementasikan solusi autentikasi dan penyimpanan data menggunakan Firebase untuk memastikan keamanan dan konsistensi data.
+
+c. Menyediakan fitur pembuatan laporan profil karyawan dan rekap penggajian yang dapat diakses melalui antarmuka mobile.
+
+d. Menganalisis hasil implementasi, termasuk kekuatan, keterbatasan, dan rekomendasi pengembangan lebih lanjut.
+
+
+4. Manfaat Penelitian/Perancangan
+
+Manfaat praktis dan akademis dari perancangan ini antara lain:
+
+- Praktis: Memfasilitasi proses penggajian dan manajemen data karyawan bagi usaha kecil hingga menengah, mengurangi kesalahan manual, dan mempercepat pembuatan laporan.
+- Akademis: Menambah wawasan tentang penerapan arsitektur aplikasi mobile, integrasi Flutter dengan Firebase, serta praktik terbaik pengembangan aplikasi lintas platform.
+
+
+BAB II – TINJAUAN PUSTAKA / LANDASAN TEORI
+
+1. Konsep Pemrograman Perangkat Bergerak
+
+Pemrograman perangkat bergerak mencakup pembuatan aplikasi untuk perangkat seperti smartphone dan tablet. Karakteristik penting yang perlu diperhatikan meliputi keterbatasan sumber daya (CPU, memori, baterai), antarmuka pengguna berbasis sentuhan, manajemen siklus hidup aplikasi, serta kebutuhan akan penanganan konektivitas yang tidak selalu stabil. Arsitektur aplikasi mobile umumnya memisahkan lapisan presentasi (UI), logika bisnis, dan akses data untuk memudahkan pemeliharaan dan pengujian.
+
+
+2. Teknologi yang Digunakan
+
+Aplikasi ini diimplementasikan menggunakan teknologi dan layanan sebagai berikut:
+
+- Flutter: Framework UI lintas platform dari Google yang menggunakan bahasa pemrograman Dart, memungkinkan pengembangan satu basis kode untuk Android dan iOS dengan performa mendekati native.
+- Dart: Bahasa pemrograman yang digunakan pada Flutter untuk penulisan logika aplikasi.
+- Firebase: Layanan backend-as-a-service yang menyediakan fitur autentikasi pengguna (Firebase Authentication), basis data dokumen (Cloud Firestore), dan infrastruktur cloud untuk penyimpanan serta sinkronisasi data.
+- Paket pendukung Flutter: library untuk manajemen state, validasi input, dan pembuatan laporan/penanganan cetak (paket `printing` atau `pdf` sesuai implementasi proyek).
+- Struktur proyek: Organisasi kode mengikuti pemisahan modul `models/`, `services/`, `screens/`, `widgets/`, `utils/`, dan `theme/` untuk keteraturan dan kemudahan pemeliharaan.
+
+
+3. Teori-teori Pendukung
+
+Teori langsung yang relevan dengan sistem yang diimplementasikan:
+
+- Prinsip Arsitektur Berlapis (Layered Architecture): Memisahkan modul presentasi, logika bisnis, dan akses data untuk meningkatkan keterawatan. Dalam proyek ini, pemisahan terlihat pada folder `screens/` (UI), `services/` (integrasi Firebase), dan `models/` (entitas data).
+- Autentikasi dan Keamanan Data: Konsep dasar autentikasi (misalnya token-based authentication) dan praktik keamanan data diterapkan melalui konfigurasi Firebase Authentication dan aturan keamanan Cloud Firestore.
+- Perhitungan Komponen Gaji: Konsep dasar payroll termasuk komponen seperti gaji pokok, tunjangan, potongan (pajak, iuran), dan logika perhitungan gaji bersih yang diimplementasikan pada modul perhitungan.
+
+
+BAB III – IMPLEMENTASI DAN PEMBAHASAN
+
+1. Implementasi Sistem
+
+a. Arsitektur Aplikasi
+
+Aplikasi diimplementasikan dengan arsitektur berlapis sederhana:
+
+- Presentation Layer: `screens/` dan `widgets/` berisi halaman antarmuka seperti layar login, dashboard, daftar karyawan, detail karyawan, form payroll, dan layar laporan. UI dibangun menggunakan widget Flutter dengan penyesuaian tema di folder `theme/`.

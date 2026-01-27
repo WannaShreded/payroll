@@ -232,7 +232,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
           children: [
             // Header
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                   begin: Alignment.topLeft,
@@ -329,7 +329,7 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                       isExpanded: true,
                       value: selectedStatus,
                       underline: const SizedBox(),
-                      items: [
+                      items: const [
                         DropdownMenuItem(value: 'hadir', child: Text('Hadir')),
                         DropdownMenuItem(
                           value: 'tidak_hadir',
@@ -477,8 +477,9 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
+                              final localContext = context;
                               final confirmed = await showDialog<bool>(
-                                context: context,
+                                context: localContext,
                                 builder: (context) => AlertDialog(
                                   title: const Text('Hapus Absensi'),
                                   content: const Text(
@@ -503,17 +504,18 @@ class _AttendanceFormPageState extends State<AttendanceFormPage> {
                               );
 
                               if (confirmed == true) {
+                                if (!mounted) return;
                                 final success =
                                     await AttendanceService.deleteAttendance(
                                       widget.attendance!.id,
                                     );
                                 if (success && mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  ScaffoldMessenger.of(localContext).showSnackBar(
                                     const SnackBar(
                                       content: Text('Absensi berhasil dihapus'),
                                     ),
                                   );
-                                  Navigator.pop(context, true);
+                                  Navigator.pop(localContext, true);
                                 }
                               }
                             },

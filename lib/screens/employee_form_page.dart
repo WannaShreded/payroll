@@ -262,10 +262,12 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                 ),
                 validator: (value) {
                   final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Email tidak boleh kosong';
-                  if (!emailRegex.hasMatch(value))
+                  }
+                  if (!emailRegex.hasMatch(value)) {
                     return 'Format email tidak valid';
+                  }
                   return null;
                 },
               ),
@@ -296,8 +298,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                   prefixIcon: const Icon(Icons.location_on),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Alamat tidak boleh kosong';
+                  }
                   return null;
                 },
               ),
@@ -398,8 +401,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                   prefixIcon: const Icon(Icons.directions_car),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Tidak boleh kosong';
+                  }
                   if (int.tryParse(value) == null) return 'Hanya angka';
                   return null;
                 },
@@ -417,8 +421,9 @@ class _EmployeeFormPageState extends State<EmployeeFormPage> {
                   prefixIcon: const Icon(Icons.restaurant),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Tidak boleh kosong';
+                  }
                   if (int.tryParse(value) == null) return 'Hanya angka';
                   return null;
                 },

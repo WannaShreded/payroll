@@ -59,10 +59,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (error == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(AppText.successRegister),
             backgroundColor: AppColors.success,
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
           ),
         );
 
@@ -88,7 +88,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } else if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(AppText.agreeTermsError),
           backgroundColor: AppColors.error,
         ),

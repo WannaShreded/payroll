@@ -88,16 +88,7 @@ class AuthService {
           email: email,
           password: password,
         );
-        // ignore: avoid_print
-        print(
-          'signInWithEmailAndPassword returned type: ${userCred.runtimeType}',
-        );
-        // ignore: avoid_print
-        print('user runtimeType: ${userCred.user.runtimeType}');
-        // ignore: avoid_print
-        print(
-          'providerData runtimeType: ${userCred.user?.providerData.runtimeType}',
-        );
+        // Debugging info removed: signin runtime type and providerData prints.
       } catch (e, st) {
         // Detailed logging for platform/channel type errors
         // ignore: avoid_print
@@ -112,12 +103,8 @@ class AuthService {
       if (!doc.exists) return null;
 
       final raw = doc.data();
-      // Defensive logging to help diagnose type issues (e.g., unexpected List)
-      // ignore: avoid_print
-      print('AuthService.loginUser - raw user doc type: ${raw.runtimeType}');
+      // Defensive check: ensure Firestore doc is a Map
       if (raw is! Map<String, dynamic>) {
-        // ignore: avoid_print
-        print('Unexpected user doc format: $raw');
         return null;
       }
 

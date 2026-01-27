@@ -153,7 +153,7 @@ class _AttendanceDetailPageState extends State<AttendanceDetailPage> {
           children: [
             // Header with employee info (profile card style)
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                   begin: Alignment.topLeft,

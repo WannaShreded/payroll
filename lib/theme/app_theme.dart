@@ -29,23 +29,23 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.backgroundLight,
 
       // APP BAR THEME
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         elevation: 0,
         backgroundColor: AppColors.white,
         foregroundColor: AppColors.textPrimary,
         centerTitle: false,
         titleTextStyle: AppTypography.titleSmall,
-        iconTheme: const IconThemeData(
+        iconTheme: IconThemeData(
           color: AppColors.textPrimary,
           size: AppDimensions.iconMedium,
         ),
       ),
 
       // CARD THEME
-      cardTheme: CardThemeData(
+      cardTheme: const CardThemeData(
         color: AppColors.cardBackground,
         elevation: AppDimensions.elevationSmall,
-        margin: const EdgeInsets.all(0),
+        margin: EdgeInsets.all(0),
         shape: RoundedRectangleBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
         ),
@@ -65,7 +65,7 @@ class AppTheme {
             AppDimensions.spacing0,
             AppDimensions.buttonHeightMedium,
           ),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: AppDimensions.radiusMediumBorderRadius,
           ),
           textStyle: AppTypography.buttonMedium,
@@ -104,7 +104,7 @@ class AppTheme {
             AppDimensions.spacing0,
             AppDimensions.buttonHeightMedium,
           ),
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: AppDimensions.radiusMediumBorderRadius,
           ),
           textStyle: AppTypography.buttonMedium,
@@ -120,37 +120,37 @@ class AppTheme {
           vertical: AppDimensions.inputPaddingVertical,
         ),
         isDense: false,
-        border: OutlineInputBorder(
+        border: const OutlineInputBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.borderLight,
             width: AppDimensions.borderWidthThin,
           ),
         ),
-        enabledBorder: OutlineInputBorder(
+        enabledBorder: const OutlineInputBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.borderLight,
             width: AppDimensions.borderWidthThin,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
+        focusedBorder: const OutlineInputBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.primaryStart,
             width: AppDimensions.borderWidthMedium,
           ),
         ),
-        errorBorder: OutlineInputBorder(
+        errorBorder: const OutlineInputBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.error,
             width: AppDimensions.borderWidthThin,
           ),
         ),
-        focusedErrorBorder: OutlineInputBorder(
+        focusedErrorBorder: const OutlineInputBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
-          borderSide: const BorderSide(
+          borderSide: BorderSide(
             color: AppColors.error,
             width: AppDimensions.borderWidthMedium,
           ),
@@ -164,7 +164,7 @@ class AppTheme {
       ),
 
       // TEXT THEME
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: AppTypography.titleLarge,
         displayMedium: AppTypography.titleMedium,
         displaySmall: AppTypography.titleSmall,
@@ -198,7 +198,7 @@ class AppTheme {
         }),
         checkColor: WidgetStateProperty.all(AppColors.white),
         side: const BorderSide(color: AppColors.borderLight),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppDimensions.radiusSmallBorderRadius,
         ),
       ),
@@ -230,7 +230,7 @@ class AppTheme {
       ),
 
       // SLIDER THEME
-      sliderTheme: SliderThemeData(
+      sliderTheme: const SliderThemeData(
         activeTrackColor: AppColors.primaryStart,
         inactiveTrackColor: AppColors.borderLight,
         thumbColor: AppColors.primaryStart,
@@ -260,14 +260,14 @@ class AppTheme {
           color: AppColors.white,
         ),
         elevation: AppDimensions.snackBarElevation,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: AppDimensions.radiusMediumBorderRadius,
         ),
         behavior: SnackBarBehavior.floating,
       ),
 
       // DIALOG THEME
-      dialogTheme: DialogThemeData(
+      dialogTheme: const DialogThemeData(
         backgroundColor: AppColors.cardBackground,
         elevation: AppDimensions.elevationLarge,
         shape: RoundedRectangleBorder(
@@ -305,7 +305,7 @@ class AppTheme {
 
       // TOOLTIP THEME
       tooltipTheme: TooltipThemeData(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: AppColors.textPrimary,
           borderRadius: AppDimensions.radiusSmallBorderRadius,
         ),
@@ -325,7 +325,7 @@ class AppTheme {
         horizontal: AppDimensions.buttonPaddingHorizontal,
         vertical: AppDimensions.buttonPaddingVertical,
       ),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppDimensions.radiusMediumBorderRadius,
       ),
     );
@@ -340,7 +340,7 @@ class AppTheme {
         horizontal: AppDimensions.buttonPaddingHorizontal,
         vertical: AppDimensions.buttonPaddingVertical,
       ),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppDimensions.radiusMediumBorderRadius,
       ),
     );
@@ -355,7 +355,7 @@ class AppTheme {
         horizontal: AppDimensions.buttonPaddingHorizontal,
         vertical: AppDimensions.buttonPaddingVertical,
       ),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppDimensions.radiusMediumBorderRadius,
       ),
     );
@@ -371,7 +371,7 @@ class AppTheme {
         horizontal: AppDimensions.buttonPaddingHorizontal,
         vertical: AppDimensions.buttonPaddingVertical,
       ),
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: AppDimensions.radiusMediumBorderRadius,
       ),
     );

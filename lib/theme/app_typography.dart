@@ -10,7 +10,7 @@ class AppTypography {
   static const String primaryFont = 'Roboto'; // System default
 
   // TITLE STYLES (20-24px, Bold)
-  static final TextStyle titleLarge = TextStyle(
+  static const TextStyle titleLarge = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
@@ -18,7 +18,7 @@ class AppTypography {
     letterSpacing: -0.5,
   );
 
-  static final TextStyle titleMedium = TextStyle(
+  static const TextStyle titleMedium = TextStyle(
     fontSize: 22,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
@@ -26,7 +26,7 @@ class AppTypography {
     letterSpacing: -0.3,
   );
 
-  static final TextStyle titleSmall = TextStyle(
+  static const TextStyle titleSmall = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
@@ -35,7 +35,7 @@ class AppTypography {
   );
 
   // SUBTITLE STYLES (16-18px, SemiBold)
-  static final TextStyle subtitleLarge = TextStyle(
+  static const TextStyle subtitleLarge = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -43,7 +43,7 @@ class AppTypography {
     letterSpacing: 0.15,
   );
 
-  static final TextStyle subtitleMedium = TextStyle(
+  static const TextStyle subtitleMedium = TextStyle(
     fontSize: 17,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -51,7 +51,7 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static final TextStyle subtitleSmall = TextStyle(
+  static const TextStyle subtitleSmall = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -60,7 +60,7 @@ class AppTypography {
   );
 
   // BODY STYLES (14px, Regular)
-  static final TextStyle bodyLarge = TextStyle(
+  static const TextStyle bodyLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w500,
     color: AppColors.textPrimary,
@@ -68,7 +68,7 @@ class AppTypography {
     letterSpacing: 0.15,
   );
 
-  static final TextStyle bodyMedium = TextStyle(
+  static const TextStyle bodyMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textPrimary,
@@ -76,7 +76,7 @@ class AppTypography {
     letterSpacing: 0.25,
   );
 
-  static final TextStyle bodySmall = TextStyle(
+  static const TextStyle bodySmall = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textSecondary,
@@ -85,7 +85,7 @@ class AppTypography {
   );
 
   // CAPTION STYLES (12px, Regular)
-  static final TextStyle captionLarge = TextStyle(
+  static const TextStyle captionLarge = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
@@ -93,7 +93,7 @@ class AppTypography {
     letterSpacing: 0.4,
   );
 
-  static final TextStyle captionSmall = TextStyle(
+  static const TextStyle captionSmall = TextStyle(
     fontSize: 11,
     fontWeight: FontWeight.w400,
     color: AppColors.textTertiary,
@@ -102,7 +102,7 @@ class AppTypography {
   );
 
   // SPECIAL STYLES
-  static final TextStyle labelMedium = TextStyle(
+  static const TextStyle labelMedium = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -110,7 +110,7 @@ class AppTypography {
     letterSpacing: 0.5,
   );
 
-  static final TextStyle labelSmall = TextStyle(
+  static const TextStyle labelSmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
@@ -119,7 +119,7 @@ class AppTypography {
   );
 
   // BUTTON STYLES (for use in ButtonThemeData)
-  static final TextStyle buttonLarge = TextStyle(
+  static const TextStyle buttonLarge = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.white,
@@ -127,7 +127,7 @@ class AppTypography {
     letterSpacing: 0.5,
   );
 
-  static final TextStyle buttonMedium = TextStyle(
+  static const TextStyle buttonMedium = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w600,
     color: AppColors.white,
@@ -135,7 +135,7 @@ class AppTypography {
     letterSpacing: 0.5,
   );
 
-  static final TextStyle buttonSmall = TextStyle(
+  static const TextStyle buttonSmall = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w600,
     color: AppColors.white,
@@ -144,7 +144,7 @@ class AppTypography {
   );
 
   // STAT VALUE STYLE (for Report cards)
-  static final TextStyle statValue = TextStyle(
+  static const TextStyle statValue = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
     color: AppColors.textPrimary,
@@ -152,7 +152,7 @@ class AppTypography {
     letterSpacing: -0.5,
   );
 
-  static final TextStyle statLabel = TextStyle(
+  static const TextStyle statLabel = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w500,
     color: AppColors.textSecondary,
@@ -161,7 +161,7 @@ class AppTypography {
   );
 
   // INPUT LABEL
-  static final TextStyle inputLabel = TextStyle(
+  static const TextStyle inputLabel = TextStyle(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppColors.textPrimary,
@@ -169,7 +169,7 @@ class AppTypography {
     letterSpacing: 0.1,
   );
 
-  static final TextStyle inputHint = TextStyle(
+  static const TextStyle inputHint = TextStyle(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textTertiary,
@@ -178,7 +178,7 @@ class AppTypography {
   );
 
   // ERROR TEXT
-  static final TextStyle errorText = TextStyle(
+  static const TextStyle errorText = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w500,
     color: AppColors.error,

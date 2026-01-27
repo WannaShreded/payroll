@@ -37,7 +37,7 @@ class AttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int? _computeMinutesFromTimes() {
+    int? computeMinutesFromTimes() {
       final entry = attendance.entryTime;
       final exit = attendance.exitTime;
       if (entry == null || exit == null) return null;
@@ -47,13 +47,13 @@ class AttendanceCard extends StatelessWidget {
       return exitMinutes - entryMinutes;
     }
 
-    String _formatHoursDisplay() {
-      final minutes = _computeMinutesFromTimes();
+    String formatHoursDisplay() {
+      final minutes = computeMinutesFromTimes();
       if (minutes != null) {
         final h = minutes ~/ 60;
         final m = minutes % 60;
         if (m == 0) return '$h jam';
-        return '$h jam ${m} menit';
+        return '$h jam $m menit';
       }
 
       // fallback to stored hoursWorked (decimal hours)
@@ -62,7 +62,7 @@ class AttendanceCard extends StatelessWidget {
       final whole = hw.truncate();
       final frac = ((hw - whole) * 60).round();
       if (frac == 0) return '$whole jam';
-      return '$whole jam ${frac} menit';
+      return '$whole jam $frac menit';
     }
 
     return Container(
@@ -197,7 +197,7 @@ class AttendanceCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    _formatHoursDisplay(),
+                    formatHoursDisplay(),
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

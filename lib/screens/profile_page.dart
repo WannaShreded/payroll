@@ -45,50 +45,56 @@ class _ProfilePageState extends State<ProfilePage> {
   void _editProfile() {
     showDialog(
       context: context,
-      builder: (context) => EditProfileDialog(
-        user: _currentUser,
-        onSave: (updatedUser) async {
-          final success = await SessionService.updateUserSession(updatedUser);
-          if (success) {
-            setState(() => _currentUser = updatedUser);
-            if (mounted) {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profil berhasil diperbarui')),
-              );
+      builder: (ctx) {
+        final dialogContext = ctx;
+        return EditProfileDialog(
+          user: _currentUser,
+          onSave: (updatedUser) async {
+            final success = await SessionService.updateUserSession(updatedUser);
+            if (success) {
+              setState(() => _currentUser = updatedUser);
+              if (mounted) {
+                Navigator.pop(dialogContext);
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(content: Text('Profil berhasil diperbarui')),
+                );
+              }
             }
-          }
-        },
-      ),
+          },
+        );
+      },
     );
   }
 
   void _changePassword() {
     showDialog(
       context: context,
-      builder: (context) => ChangePasswordDialog(
-        onSave: (oldPass, newPass) async {
-          final ok = await AuthService.changePassword(
-            oldPassword: oldPass,
-            newPassword: newPass,
-          );
-          if (!mounted) return;
-          Navigator.pop(context);
-          if (ok) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Password berhasil diubah')),
+      builder: (ctx) {
+        final dialogContext = ctx;
+        return ChangePasswordDialog(
+          onSave: (oldPass, newPass) async {
+            final ok = await AuthService.changePassword(
+              oldPassword: oldPass,
+              newPassword: newPass,
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Gagal mengubah password. Pastikan password lama benar.',
+            if (!mounted) return;
+            Navigator.pop(dialogContext);
+            if (ok) {
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                const SnackBar(content: Text('Password berhasil diubah')),
+              );
+            } else {
+              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Gagal mengubah password. Pastikan password lama benar.',
+                  ),
                 ),
-              ),
-            );
-          }
-        },
-      ),
+              );
+            }
+          },
+        );
+      },
     );
   }
 
@@ -107,7 +113,7 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             // Modern header: elevated card on gradient background
             Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                   begin: Alignment.topLeft,
@@ -408,7 +414,6 @@ class EditProfileDialog extends StatefulWidget {
 
 class _EditProfileDialogState extends State<EditProfileDialog> {
   late TextEditingController _nameController;
-  late TextEditingController _emailController;
   late TextEditingController _phoneController;
   final _formKey = GlobalKey<FormState>();
 
@@ -416,20 +421,14 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user.fullName);
-    _emailController = TextEditingController(text: widget.user.email);
     _phoneController = TextEditingController(text: widget.user.phone);
   }
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
-  }
-
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email);
   }
 
   @override
@@ -456,23 +455,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                 },
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email harus diisi';
-                  }
-                  if (!_isValidEmail(value)) {
-                    return 'Email tidak valid';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
+              // Email cannot be changed from profile; keep it read-only in profile view.
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(
@@ -498,12 +481,13 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Batal'),
         ),
-        ElevatedButton(
+              ElevatedButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               final updatedUser = widget.user.copyWith(
                 fullName: _nameController.text,
-                email: _emailController.text,
+                // Email editing removed: preserve original email
+                email: widget.user.email,
                 phone: _phoneController.text,
                 role: widget.user.role,
               );

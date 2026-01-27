@@ -89,10 +89,10 @@ class _LoginPageState extends State<LoginPage> {
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(AppText.successLogin),
+            const SnackBar(
+              content: Text(AppText.successLogin),
               backgroundColor: AppColors.success,
-              duration: const Duration(seconds: 2),
+              duration: Duration(seconds: 2),
             ),
           );
 
